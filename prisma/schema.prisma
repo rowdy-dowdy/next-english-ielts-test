@@ -162,7 +162,7 @@ model File {
 
   admins Admin[] @relation("avatar")
 
-  group_quesstion GroupQuestions[]
+  group_quesstions GroupQuestion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -220,64 +220,64 @@ model AccessHistory {
 
 
 // custom
-model Quizzes {
-  id        String   @id @default(cuid())
-  title     String
-  slug      String
-  work_time DateTime
+model Quiz {
+  id       String   @id @default(cuid())
+  title    String
+  slug     String
+  workTime Int // so phut
 
-  passages Passages[]
+  passages Passage[]
 
   publish   String   @default("publish") // or draft
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Passages {
+model Passage {
   id      String @id @default(cuid())
   title   String
   content String
 
-  quiz_id String
-  quiz    Quizzes @relation(fields: [quiz_id], references: [id])
+  quizId  String
+  quiz    Quiz @relation(fields: [quizId], references: [id])
 
-  group_questions GroupQuestions[]
+  groupQuestions GroupQuestion[]
 }
 
-model GroupQuestions {
+model GroupQuestion {
   id      String @id @default(cuid())
   type    String
   title   String
   options String
 
-  image_id String?
-  image    File? @relation(fields: [image_id], references: [id])
+  imageId String?
+  image    File? @relation(fields: [imageId], references: [id])
 
-  passage_id String
-  passage    Passages @relation(fields: [passage_id], references: [id])
+  passageId String
+  passage    Passage @relation(fields: [passageId], references: [id])
 
-  questions Questions[]
+  questions Question[]
 }
 
-model Questions {
+model Question {
   id String @id @default(cuid())
 
-  question_name String?
-  option_a      String?
-  option_b      String?
-  option_c      String?
-  option_d      String?
+  questionName String?
+  optionA      String?
+  optionB      String?
+  optionC      String?
+  optionD      String?
 
-  group_question_id String
-  group_quesstion   GroupQuestions @relation(fields: [group_question_id], references: [id])
+  groupQuestionId String
+  groupQuesstion   GroupQuestion @relation(fields: [groupQuestionId], references: [id])
 
-  answer Answers?
+  answer Answer?
 }
 
-model Answers {
-  id          String @id @default(cuid())
-  answer_name String
+model Answer {
+  id         String @id @default(cuid())
+  answerName String
 
-  question_id String    @unique
-  question    Questions @relation(fields: [question_id], references: [id])
+  questionId String    @unique
+  question    Question @relation(fields: [questionId], references: [id])
 }

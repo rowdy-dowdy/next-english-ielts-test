@@ -2,16 +2,12 @@
 import { Backdrop, Button, CircularProgress } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import React, { useState, FormEvent, MouseEvent } from 'react'
-import AdminFormFieldText from '../form-field/AdminFormFieldText'
-import AdminFormFieldSelect from '../form-field/AdminFormFieldSelect'
-import { VariantType, useSnackbar } from 'notistack'
 import moment from 'moment'
-import AdminFormFieldRelation from '../form-field/AdminFormFieldRelation'
-import { AddEditDataSampleState, SampleColumnsType, addEditDataSample, changePublishData } from '@/lib/admin/sample'
-import AdminFormFieldPermissions from '../form-field/AdminFormFieldPermissions'
-import AdminFormFieldNumber from '../form-field/AdminFormFieldNumber'
+import { SampleColumnsType, addEditDataSample, changePublishData } from '@/lib/admin/sample'
 import { DATA_FIELDS } from '@/lib/admin/fields'
 import { promiseFunction } from '@/lib/admin/promise'
+import AdminFormFieldSlug from '../form-field/AdminFormFieldSlug'
+import slugify from 'slugify'
 
 export type SampleStateType = {
   data?: any | undefined,
@@ -65,6 +61,39 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
     })
   }
 
+  // slug 
+  const [listSlugValue, setListSlugValue] = useState<{
+    name: string,
+    value: string
+  }[]>(columns.filter(v => v.type == "slug").map(v => ({ name: v.name, value: data ? data[v.name] || '' : ''})))
+
+  const onChangeValue = (value: any, name: string) => {
+    //@ts-ignore
+    let column = columns.filter(v => v.type == "slug").find(v => v.details.tableNameSlug == name)
+    if (column) {
+      onSlugChangeValue(value, column.name)
+    }
+  }
+
+  const onSlugChangeValue = (value: any, name: string) => {
+    setListSlugValue(state => state.map(v => {
+      let tempValue = v.value
+      if (v.name == name) {
+        tempValue = slugify(value, {
+          replacement: '_',
+          lower: true,
+          locale: 'vi',
+          trim: false
+        })
+      }
+
+      return ({
+        name: v.name,
+        value: tempValue
+      })
+    }))
+  }
+
   return (
     <form onSubmit={save}>
       { data
@@ -107,13 +136,24 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
           <div className="w-full p-4 bg-white rounded shadow">
             <div className="flex -mx-2 flex-wrap">
               {columns.filter(v => !['id', 'createdAt', 'updatedAt', 'publish'].includes(v.name)).map(column => {
-                const Component = DATA_FIELDS[column.type] ? DATA_FIELDS[column.type].Component : null
+                const Component = DATA_FIELDS[column.type] 
+                  ? column.type == "custom" ? column.details.customComponentEdit 
+                  : DATA_FIELDS[column.type].Component : null
+
                 return Component ? <div className="px-2 mb-4" key={column.name} style={{ width: column.col ? `${(12 / column.col) * 100}%` : '50%' }}>
-                  <Component
-                    label={column.name} name={column.name}
-                    required={column.required} defaultValue={data ? data[column.name] : undefined}
-                    details={{...column.details, tableName: tableName}}
-                  />
+                  { column.type == "slug"
+                    ? <SlugFieldEdit key={column.name} label={column.name} name={column.name} required={column.required} 
+                      value={listSlugValue.find(v => v.name == column.name)?.value}
+                      setValue={(v) => onSlugChangeValue(v, column.name)} 
+                    />
+                    : <Component
+                      key={column.name}
+                      label={column.label} name={column.name}
+                      required={column.required} defaultValue={data ? data[column.name] : undefined}
+                      onChange={(v) => onChangeValue(v, column.name)}
+                      details={{...column.details, tableName: tableName}}
+                    />
+                  }
                 </div> : null
               })}
             </div>
@@ -138,11 +178,11 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
             <div className="flex flex-col space-y-4 mt-4 text-sm">
               <div className="flex justify-between">
                 <span className="font-medium text-gray-600">Thời gian tạo</span>
-                <span>{data ? moment(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : 'now'}</span>
+                <span>{data ? moment(data?.createdAt).format('YYYY-MM-DD HH:mm:ss') : 'now'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="font-medium text-gray-600">Thời gian cập nhập</span>
-                <span>{data ? moment(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : 'now'}</span>
+                <span>{data ? moment(data?.updatedAt).format('YYYY-MM-DD HH:mm:ss') : 'now'}</span>
               </div>
             </div>
           </div>
@@ -156,6 +196,21 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
         <CircularProgress color="inherit" />
       </Backdrop>
     </form>
+  )
+}
+
+const SlugFieldEdit = ({
+  label, name, required, value, setValue
+}: {
+  label?: string,
+  name?: string
+  required?: boolean,
+  value?: string,
+  setValue: (value: string) => void
+}) => {
+  
+  return (
+    <AdminFormFieldSlug label={label} name={name} required={required} value={value} onChange={(v) => setValue(v)} />
   )
 }
 

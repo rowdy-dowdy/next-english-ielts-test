@@ -5,6 +5,7 @@ import { createHistoryAdmin, useCurrentUserAdmin } from "./helperServer";
 import db from "./prismadb"
 import bcrypt from 'bcrypt'
 import { checkPermissions } from "./fields";
+import { FC } from "react";
 
 export type SampleColumnsType = {
   name: string,
@@ -18,6 +19,8 @@ export type SampleFieldAndDetailsType = (
   SampleColumnSelectType | 
   SampleColumnReactionType |
   SampleColumnFileType |
+  SampleColumnSlugType |
+  SampleColumnCustomType | 
   // SampleColumnPermissionsType |
   {
     type: 'string' | 'date' | 'publish' | 'int' | 'bool' | 'text' | 'permissions' | 'password',
@@ -51,6 +54,21 @@ export type SampleColumnReactionType = {
     typeRelation: 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many',
     tableNameRelation: string,
     titleRelation: string
+  }
+}
+
+export type SampleColumnSlugType = {
+  type: 'slug',
+  details: {
+    tableNameSlug: string,
+  }
+}
+
+export type SampleColumnCustomType = {
+  type: 'custom',
+  details: {
+    customComponentEdit: FC,
+    customComponentView?: FC,
   }
 }
 

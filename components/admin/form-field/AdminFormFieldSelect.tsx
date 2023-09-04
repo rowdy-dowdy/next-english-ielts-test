@@ -8,7 +8,7 @@ type State = {
   required?: boolean,
   defaultValue?: any,
   value?: any,
-  onChange?: (event: SelectChangeEvent) => void
+  onChange?: (data: string) => void
   className?: string,
   details: {
     list: Item[],
@@ -33,7 +33,7 @@ const AdminFormFieldSelect: React.FC<State> = ({
 }) => {
   const handleChange = (event: SelectChangeEvent) => {
     if (typeof onChange == "function")
-      onChange(event)
+      onChange(event.target.value)
   }
 
   const getValueProps = () => {

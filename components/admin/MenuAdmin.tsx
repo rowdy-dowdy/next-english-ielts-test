@@ -76,7 +76,7 @@ const MenuAdmin = ({
               >
                 <div className='flex-none px-1 grid place-items-center' style={{width: "44px"}}>
                   <span className="material-symbols-outlined icon-500">
-                    {v.icon}
+                    {v.icon || 'database'}
                   </span>
                 </div>
                 <span className="flex-none">{v.name}</span>

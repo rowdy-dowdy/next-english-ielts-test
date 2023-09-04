@@ -1,5 +1,6 @@
 "use client"
-import React from 'react'
+import { FC } from 'react'
+import slugify from 'slugify'
 
 type State = {
   label?: string,
@@ -8,11 +9,11 @@ type State = {
   defaultValue?: string,
   value?: string,
   placeholder?: string,
-  onChange?: (data: string) => void
+  onChange?: (value: string) => void
   className?: string
 }
 
-const AdminFormFieldText: React.FC<State> = ({
+const AdminFormFieldSlug: FC<State> = ({
   label,
   name,
   required = false,
@@ -22,10 +23,23 @@ const AdminFormFieldText: React.FC<State> = ({
   className,
   placeholder
 }) => {
-
+ 
   const changeEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (typeof onChange == 'function') 
-      onChange(e.target.value)
+    const tempSlugValue = slugify(e.target.value, {
+      replacement: '_',
+      lower: true,
+      locale: 'vi',
+      trim: false
+    })
+
+    if (!value) {
+      e.target.value = tempSlugValue
+    }
+
+    if (typeof onChange == 'function') {
+      console.log(typeof value)
+      onChange(tempSlugValue)
+    }
   }
 
   return (
@@ -41,4 +55,4 @@ const AdminFormFieldText: React.FC<State> = ({
   )
 }
 
-export default AdminFormFieldText
+export default AdminFormFieldSlug

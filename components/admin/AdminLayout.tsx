@@ -10,9 +10,10 @@ import { useStoreCustom } from '@/stores';
 import { SnackbarProvider } from 'notistack';
 import { AdminUserType } from '@/lib/admin/helperServer';
 import { io, Socket } from 'socket.io-client';
+import { TABLES_SAMPLE } from '@/app/admin/(admin)/(sample)/[slug]/table';
 
 export type LinkState = {
-  icon: string,
+  icon?: string,
   name: string,
   path: string,
   tableName?: string
@@ -23,19 +24,12 @@ export const MANAGER_LINKS: LinkState[] = [
     icon: 'dashboard',
     name: "Bảng điều khiển",
     path: "/admin"
-  },
-  {
-    icon: 'scene',
-    name: "Điểm chụp",
-    path: "/admin/scenes",
-    tableName: 'scene',
-  },
-  {
-    icon: 'category',
-    name: "Danh mục",
-    tableName: 'groupScene',
-    path: "/admin/group"
-  }
+  }, 
+  ...TABLES_SAMPLE.filter(v => !["users", "roles", "settings"].includes(v.slug)).map(v => ({
+    icon: v.icon,
+    name: v.name,
+    path: '/admin/' + v.slug
+  }))
 ]
 
 export const GENERAL_LINKS: LinkState[] = [

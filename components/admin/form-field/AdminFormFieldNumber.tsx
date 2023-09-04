@@ -8,7 +8,7 @@ type State = {
   defaultValue?: string,
   number?: boolean
   value?: string,
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (data: string) => void
   className?: string
 }
 
@@ -25,7 +25,7 @@ const AdminFormFieldNumber: React.FC<State> = ({
 
   const changeEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (typeof onChange == 'function') 
-      onChange(e)
+      onChange(e.target.value)
   }
 
   return (

@@ -10,7 +10,7 @@ type State = {
   placeholder?: string,
   defaultValue?: any,
   value?: boolean,
-  onChange?: (e: ChangeEvent<HTMLInputElement>, checked: boolean) => void,
+  onChange?: (data: boolean) => void,
 }
 
 const AdminFormFieldBool = ({
@@ -26,7 +26,7 @@ const AdminFormFieldBool = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     if (onChange) {
-      onChange(e, checked)
+      onChange(checked)
     }
   }
 

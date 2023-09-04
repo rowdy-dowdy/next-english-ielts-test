@@ -1,9 +1,11 @@
+import PassageFormField from "@/components/admin/english/PassageFormField"
 import { SampleColumnsType } from "@/lib/admin/sample"
 
 type TableType = {
   name: string,
   tableName: string,
   slug: string,
+  icon?: string,
   rowsPerPages: number[],
   columns: SampleColumnsType[]
   orderBy?: string,
@@ -64,15 +66,22 @@ export const TABLES_SAMPLE: TableType[] = [
     ]
   },
   {
-    name: 'Danh mục điểm chụp',
-    tableName: 'groupScene',
-    slug: 'group',
+    name: 'Bài test',
+    tableName: 'quiz',
+    slug: 'quizzes',
+    icon: 'quiz',
     rowsPerPages: [10, 20, 50],
     columns: [
       { name: 'id', label: 'ID', type: 'string', show: true},
     
-      { name: 'name', label: 'Tên', type: 'string', show: true, required: true},
-      { name: 'sort', label: 'Thứ tự', type: 'int', show: true},
+      { name: 'title', label: 'Tên', type: 'string', show: true, required: true},
+      { name: 'slug', label: 'Slug', type: 'slug', show: true, details: {
+        tableNameSlug: 'title'
+      }},
+      { name: 'work_time', label: 'Thời gian làm (phút)', type: 'int', show: true, required: true},
+      { name: 'passages', label: 'Đoạn văn', type: 'custom', show: true, required: true, details: {
+        customComponentEdit: PassageFormField
+      }, col: 12},
     
       { name: 'createdAt', label: 'Ngày tạo', type: 'date', show: true},
       { name: 'updatedAt', label: 'Ngày cập nhập', type: 'date', show: true},
@@ -81,43 +90,4 @@ export const TABLES_SAMPLE: TableType[] = [
     orderBy: 'sort',
     orderType: 'asc'
   },
-  {
-    name: 'Điểm chụp',
-    tableName: 'scene',
-    slug: 'scenes',
-    rowsPerPages: [10, 20, 50],
-    columns: [
-      { name: 'id', label: 'ID', type: 'string', show: true},
-    
-      { name: 'createdAt', label: 'Ngày tạo', type: 'date', show: true},
-      { name: 'updatedAt', label: 'Ngày cập nhập', type: 'date', show: true},
-      { name: 'publish', label: 'Xuất bản', type: 'publish', show: true},
-    ]
-  },
-  {
-    name: 'Điểm nóng liên kết',
-    tableName: 'linkHotspot',
-    slug: 'link-hotspots',
-    rowsPerPages: [10, 20, 50],
-    columns: [
-      { name: 'id', label: 'ID', type: 'string', show: true},
-    
-      { name: 'createdAt', label: 'Ngày tạo', type: 'date', show: true},
-      { name: 'updatedAt', label: 'Ngày cập nhập', type: 'date', show: true},
-      { name: 'publish', label: 'Xuất bản', type: 'publish', show: true},
-    ]
-  },
-  {
-    name: 'Điểm nóng thông tin',
-    tableName: 'infoHotspot',
-    slug: 'info-hotspots',
-    rowsPerPages: [10, 20, 50],
-    columns: [
-      { name: 'id', label: 'ID', type: 'string', show: true},
-    
-      { name: 'createdAt', label: 'Ngày tạo', type: 'date', show: true},
-      { name: 'updatedAt', label: 'Ngày cập nhập', type: 'date', show: true},
-      { name: 'publish', label: 'Xuất bản', type: 'publish', show: true},
-    ]
-  }
 ]

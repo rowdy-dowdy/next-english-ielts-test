@@ -7,7 +7,7 @@ type State = {
   required?: boolean,
   defaultValue?: string,
   value?: string,
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (data: string) => void
   className?: string
 }
 
@@ -22,7 +22,7 @@ const AdminFormFieldPassword: React.FC<State> = ({
 
   const changeEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (typeof onChange == 'function') 
-      onChange(e)
+      onChange(e.target.value)
   }
 
   return (
