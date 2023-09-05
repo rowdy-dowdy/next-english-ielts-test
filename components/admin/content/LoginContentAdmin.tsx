@@ -1,15 +1,17 @@
 "use client"
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import React, { FormEvent, useState } from 'react'
 import { promiseFunction } from '@/lib/admin/promise'
 import { loginUserAdmin } from '@/lib/admin/helperServer'
 
 const LoginContentAdmin = () => {
+  const searchParams = useSearchParams()
   const router = useRouter();
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  
 
   const login = async (e: FormEvent) => {
     e.preventDefault()
@@ -18,7 +20,6 @@ const LoginContentAdmin = () => {
       loading,
       setLoading,
       callback: async () => {
-
         const { email, password, remember }: any = Object.fromEntries(
           new FormData(e.target as HTMLFormElement),
         )
@@ -27,7 +28,15 @@ const LoginContentAdmin = () => {
           email, password, remember
         })
 
-        router.refresh()
+        const urlRedirect = searchParams?.get('url')
+
+        if (urlRedirect) {
+          console.log({urlRedirect})
+          router.replace(urlRedirect)
+        }
+        else {
+          router.refresh()
+        }
       }
     })
   }

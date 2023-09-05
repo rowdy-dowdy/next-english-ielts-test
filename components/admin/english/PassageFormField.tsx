@@ -61,8 +61,6 @@ const PassageFormField: FC<State> = ({
           <Accordion key={i} expanded={expanded === `panel-${i}`} onChange={handleChange(`panel-${i}`)} >
             <AccordionSummary
               expandIcon={<span className='icon'>expand_more</span>}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
             >
               <input type="text" defaultValue={v.title} />
             </AccordionSummary>
@@ -97,13 +95,13 @@ const GroupQuestion = () => {
   };
 
   const groupQuestionsListAdd: QuestionTypeMap[] = [
-    { type: 'diagram',label: 'Diagram Label Completion', component: DiagramFormField},
-    { type: 'true-false',label: 'True / False / Not given', component: TrueFalseFormField},
-    { type: 'short',label: 'Short Answer', component: ShortFormField},
-    { type: 'single',label: 'Single Answer', component: SingleFormField},
-    { type: 'summary',label: 'Summary, Note Completion With Hint', component: SummaryFormField},
-    { type: 'yes-no',label: 'Yes / No / Not Given', component: YesNoFormField},
-    { type: 'matching',label: 'Matching Heading', component: MatchingFormField}
+    { type: 'diagram', label: 'Diagram Label Completion', component: DiagramFormField},
+    { type: 'true-false', label: 'True / False / Not given', component: TrueFalseFormField},
+    { type: 'short', label: 'Short Answer', component: ShortFormField},
+    { type: 'single', label: 'Single Answer', component: SingleFormField},
+    { type: 'summary', label: 'Summary, Note Completion With Hint', component: SummaryFormField},
+    { type: 'yes-no', label: 'Yes / No / Not Given', component: YesNoFormField},
+    { type: 'matching', label: 'Matching Heading', component: MatchingFormField}
   ]
 
   const [expanded, setExpanded] = useState<string | false>(false);
@@ -124,8 +122,10 @@ const GroupQuestion = () => {
   const addToData = (e: MouseEvent, type: OptionTypeState) => {
     e.preventDefault()
 
+    const titleGroupQuestion = groupQuestionsListAdd.find(v => v.type == type)?.label || 'Nhóm câu hỏi'
+
     setData(state => [...state, {
-      title: 'Nhóm câu hỏi ' + (state.length + 1),
+      title: titleGroupQuestion,
       type: type,
       image: null,
       questions: []
@@ -144,8 +144,6 @@ const GroupQuestion = () => {
           return <Accordion key={i} expanded={expanded === `panel-${i}`} onChange={handleChange(`panel-${i}`)} >
             <AccordionSummary
               expandIcon={<span className='icon'>expand_more</span>}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
             >
               <input type="text" defaultValue={v.title} />
             </AccordionSummary>
@@ -161,7 +159,7 @@ const GroupQuestion = () => {
         }
 
         <div className="flex flex-col justify-center items-center mt-4">
-          <div className={`w-full grid gap-2 ${!showAdd ? '!hidden' : 'mb-4'}`} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(9rem, 1fr))' }}>
+          <div className={`w-full grid gap-2 ${!showAdd ? '!hidden' : 'mb-4'}`} style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(9rem, 1fr))' }}>
             { groupQuestionsListAdd.map(v => 
               <button 
                 key={v.type}
@@ -186,7 +184,5 @@ const GroupQuestion = () => {
     </div>
   )
 }
-
-
 
 export default PassageFormField

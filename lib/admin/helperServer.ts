@@ -65,7 +65,7 @@ export const useCurrentUserAdmin = async (request?: NextRequest) => {
 
     return user
   } catch (error) {
-    console.log({error})
+    console.log({error}, 'login')
     return null
   }
 }

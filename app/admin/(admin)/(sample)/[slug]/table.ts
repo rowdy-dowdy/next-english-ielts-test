@@ -78,7 +78,7 @@ export const TABLES_SAMPLE: TableType[] = [
       { name: 'slug', label: 'Slug', type: 'slug', show: true, details: {
         tableNameSlug: 'title'
       }},
-      { name: 'work_time', label: 'Thời gian làm (phút)', type: 'int', show: true, required: true},
+      { name: 'workTime', label: 'Thời gian làm (phút)', type: 'int', show: true, required: true},
       { name: 'passages', label: 'Đoạn văn', type: 'custom', show: true, required: true, details: {
         customComponentEdit: PassageFormField
       }, col: 12},

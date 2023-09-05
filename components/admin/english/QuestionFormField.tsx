@@ -1,20 +1,22 @@
 "use client"
 
 import { Accordion, AccordionDetails, AccordionSummary, Button } from "@mui/material"
-import { MouseEvent, ReactNode, SyntheticEvent, useState } from "react"
+import { FC, MouseEvent, ReactNode, SyntheticEvent, useState } from "react"
 
 type State = {
   label: string,
   name?: string,
-  children: ReactNode,
-  isAdd?: boolean
+  renderItem: (index: number) => ReactNode,
+  isAdd?: boolean,
+  className?: string
 }
 
 const QuestionFormField: React.FC<State> = ({
   label,
   name,
-  children,
-  isAdd = true
+  renderItem,
+  isAdd = true,
+  className
 }) => {
   const [expanded, setExpanded] = useState<string | false>(false);
 
@@ -23,54 +25,64 @@ const QuestionFormField: React.FC<State> = ({
   }
 
   const [data, setData] = useState<{
-    title: string,
-    // answer: {
-    //   answerName: string | null
-    // },
-    // optionA: string,
-    // optionB: string,
-    // optionC: string,
-    // optionD: string
+    index: number,
+    answer: {
+      answerName: string | null
+    },
+    optionA: string,
+    optionB: string,
+    optionC: string,
+    optionD: string
   }[]>([])
 
   const addToData = (e: MouseEvent) => {
     e.preventDefault()
 
     setData(state => [...state, {
-      title: 'Câu hỏi',
-      // answer: {
-      //   answer_name: null
-      // },
-      // option_a: '',
-      // option_b: '',
-      // option_c: '',
-      // option_d: ''
+      index: state.length + 1,
+      answer: {
+        answerName: null
+      },
+      optionA: '',
+      optionB: '',
+      optionC: '',
+      optionD: ''
     }])
     setExpanded(`panel-${data.length}`)
   }
 
+  const deleteData = (e: MouseEvent, index: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    setData(state => state.filter((v,i) => i != index))
+  }
+
   return (
-    <div>
+    <div className={className}>
       <p className="text-sm font-medium mb-1 capitalize">{label} <span className="text-red-500">*</span></p>
       <div className="flex flex-col">
         { data.map((v,i) => 
           <Accordion key={i} expanded={expanded === `panel-${i}`} onChange={handleChange(`panel-${i}`)} >
           <AccordionSummary
             expandIcon={<span className='icon'>expand_more</span>}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
           >
-            <input type="text" defaultValue={v.title} />
+            <div className="w-full flex justify-between space-x-2 items-center">
+              <span>Câu hỏi {v.index}</span>
+              <span className="icon text-red-600 cursor-pointer"
+                onClick={(e) => deleteData(e, i)}
+              >delete</span>
+            </div>
           </AccordionSummary>
           <AccordionDetails>
-            { children }
+            { renderItem(i) }
           </AccordionDetails>
         </Accordion>
         )}
 
         { isAdd
           ? <Button variant="outlined" startIcon={<span className="icon">add</span>}
-            onClick={(e) => addToData(e)} className="!mt-4"
+            onClick={(e) => addToData(e)} className={ data.length > 0 ? '!mt-4' : ''}
           >
             <span className="font-semibold">Add new question</span>
           </Button>

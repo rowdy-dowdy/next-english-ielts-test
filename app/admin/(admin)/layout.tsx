@@ -1,25 +1,22 @@
 import AdminLayout from 'components/admin/AdminLayout';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import React from 'react';
 import { useCurrentUserAdmin } from '@/lib/admin/helperServer';
 import ClientOnly from '@/components/ClientOnly';
-import { redirect } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import { getSettingsData } from '@/lib/admin/sample';
 
 export default async function AdminRootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
-
-  // const { user: data } = await getData()
-
-  // console.log(data)
-
+  
   const user = await useCurrentUserAdmin()
-
+  
   if (user == null) {
-    redirect('/admin/login')
+    const pathname = headers().get("x-invoke-path") || ""
+    redirect(`/admin/login?url=${pathname}`)
   }
 
   return (
