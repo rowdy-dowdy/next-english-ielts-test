@@ -174,55 +174,55 @@ CREATE TABLE "AccessHistory" (
 );
 
 -- CreateTable
-CREATE TABLE "Quizzes" (
+CREATE TABLE "Quiz" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "work_time" DATETIME NOT NULL,
+    "workTime" INTEGER NOT NULL,
     "publish" TEXT NOT NULL DEFAULT 'publish',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "Passages" (
+CREATE TABLE "Passage" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "quiz_id" TEXT NOT NULL,
-    CONSTRAINT "Passages_quiz_id_fkey" FOREIGN KEY ("quiz_id") REFERENCES "Quizzes" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "quizId" TEXT NOT NULL,
+    CONSTRAINT "Passage_quizId_fkey" FOREIGN KEY ("quizId") REFERENCES "Quiz" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "GroupQuestions" (
+CREATE TABLE "GroupQuestion" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "type" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "options" TEXT NOT NULL,
-    "image_id" TEXT,
-    "passage_id" TEXT NOT NULL,
-    CONSTRAINT "GroupQuestions_image_id_fkey" FOREIGN KEY ("image_id") REFERENCES "File" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "GroupQuestions_passage_id_fkey" FOREIGN KEY ("passage_id") REFERENCES "Passages" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "imageId" TEXT,
+    "passageId" TEXT NOT NULL,
+    CONSTRAINT "GroupQuestion_imageId_fkey" FOREIGN KEY ("imageId") REFERENCES "File" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "GroupQuestion_passageId_fkey" FOREIGN KEY ("passageId") REFERENCES "Passage" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "Questions" (
+CREATE TABLE "Question" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "question_name" TEXT,
-    "option_a" TEXT,
-    "option_b" TEXT,
-    "option_c" TEXT,
-    "option_d" TEXT,
-    "group_question_id" TEXT NOT NULL,
-    CONSTRAINT "Questions_group_question_id_fkey" FOREIGN KEY ("group_question_id") REFERENCES "GroupQuestions" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "questionName" TEXT,
+    "optionA" TEXT,
+    "optionB" TEXT,
+    "optionC" TEXT,
+    "optionD" TEXT,
+    "groupQuestionId" TEXT NOT NULL,
+    CONSTRAINT "Question_groupQuestionId_fkey" FOREIGN KEY ("groupQuestionId") REFERENCES "GroupQuestion" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "Answers" (
+CREATE TABLE "Answer" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "answer_name" TEXT NOT NULL,
-    "question_id" TEXT NOT NULL,
-    CONSTRAINT "Answers_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "Questions" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "answerName" TEXT NOT NULL,
+    "questionId" TEXT NOT NULL,
+    CONSTRAINT "Answer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -250,4 +250,4 @@ CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 CREATE UNIQUE INDEX "Setting_name_key" ON "Setting"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Answers_question_id_key" ON "Answers"("question_id");
+CREATE UNIQUE INDEX "Answer_questionId_key" ON "Answer"("questionId");

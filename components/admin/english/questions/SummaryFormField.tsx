@@ -1,41 +1,153 @@
 "use client"
 
+import { useEffect } from "react"
 import AdminFormFieldLongText from "../../form-field/AdminFormFieldLongText"
 import AdminFormFieldText from "../../form-field/AdminFormFieldText"
-import QuestionFormField from "../QuestionFormField"
+import { GroupQuestionOptionsState, QuestionState } from "../PassageFormField"
+import QuestionFormField, { QuestionFormField2 } from "../QuestionFormField"
+import { v4 } from "uuid"
 
-const SummaryFormField = () => {
+const SummaryFormField = ({
+  data, updateData, options, setOptions
+}: {
+  data: QuestionState[]
+  updateData: (data: QuestionState[]) => void,
+  options: GroupQuestionOptionsState,
+  setOptions: (data: GroupQuestionOptionsState) => void
+}) => {
+
+  const handelChangeOptions = (value: string, type: 'title' | 'content') => {
+    const newOptions = options ? {
+      ...options,
+      [type == "title" ? 'summaryTitle' : 'summaryContent']: value
+    } : {
+      summaryTitle: type == "title" ? value : '',
+      summaryContent: type == "content" ? value : '',
+      suggestions: []
+    }
+
+    setOptions(newOptions)
+  }
+
+  const handelUpdateSuggestions = (value: string, id: string) => {
+    const newSuggestions = (options?.suggestions || []).map(v => {
+      if (v.id == id) {
+        return {
+          ...v,
+          title: value
+        }
+      }
+      return v
+    })
+
+    const newData = options ? {...options, suggestions: newSuggestions} : {
+      summaryTitle: '',
+      summaryContent: '',
+      suggestions: newSuggestions
+    }
+
+    setOptions(newData)
+  }
+
+  const handelUpdate = (value: string, id: string) => {
+    const newData: QuestionState[] = data.map(v => {
+      if (v.id == id) {
+        return {
+          ...v,
+          answer: v.answer ? {
+            ...v.answer,
+            answerName: value
+          } : { id: v4(), answerName: value }
+        }
+      }
+      return v
+    })
+
+    updateData(newData)
+  }
+
+  const changeQuestion = (longText: string) => {
+    console.log({longText})
+    let newSuggestions: any[] = []
+    let newData = data
+    let count = (longText.split("__") || []).length - 1
+    
+    if (count > data.length) {
+      let temp: QuestionState[] = new Array(count - data.length).fill(0).map(v => ({
+        id: v4(),
+        answer: {
+          id: v4(),
+          answerName: '',
+        },
+        questionName: '',
+        optionA: '',
+        optionB: '',
+        optionC: '',
+        optionD: '',
+      }))
+
+      newData = [...data, ...temp]
+
+      if (newData.length > (options?.suggestions || []).length) {
+        let temp = new Array(newData.length - (options?.suggestions || []).length).fill({id: v4(), title: ''})
+        newSuggestions = [...(options?.suggestions || []), ...temp]
+      }
+    }
+    else if (count < data.length) {
+      newData = data.filter((v,i) => i < count)
+    }
+
+    const newOptions = options ? {...options, suggestions: newSuggestions} : {
+      summaryTitle: '',
+      summaryContent: '',
+      suggestions: newSuggestions
+    }
+    setOptions(newOptions)
+    updateData(newData)
+  }
+
+  useEffect(() => {
+    if (options?.summaryContent != undefined) {
+      changeQuestion(options.summaryContent)
+    }
+  }, [options?.summaryContent])
+
   return (
     <div className="flex flex-wrap -mx-2">
       <div className="w-full lg:w-1/2 px-2 mb-4">
-        <AdminFormFieldText label="Summary title" placeholder="Studies on digital screen use" />
+        <AdminFormFieldText value={options?.summaryTitle} onChange={(v) => handelChangeOptions(v, 'title')} label="Summary title" placeholder="Studies on digital screen use" />
         <div className="mt-4">
-          <AdminFormFieldLongText label="content"/>
+          <AdminFormFieldLongText value={options?.summaryContent} onChange={(v) => handelChangeOptions(v, 'content')} label="content"/>
         </div>
         <p className="mt-2 text-xs">Use the __ symbol for the answer position.</p>
       </div>
 
-      <QuestionFormField className="w-full lg:w-1/2 px-2 mb-4" label="Nhóm câu hỏi" renderItem={(index) =>
+      <div className="w-full lg:w-1/2 px-2 mb-4">
         <div className="flex flex-wrap -mx-2">
-          <div className="w-1/2 px-2 mb-4">
-            <p className="text-xs font-semibold mb-1.5 capitalize">
-              suggestion <span className="text-red-600">*</span>
-            </p>
-            <div className="border rounded focus-within:ring-2 ring-blue-600 bg-white">
-              <input type="text" className="w-full px-4 py-2" placeholder="suggestion" />
-            </div>
-          </div>
+          <QuestionFormField2 className="w-full lg:w-1/2 px-2 mb-4" data={options?.suggestions || []} updateData={updateData} renderItem={(suggestion) =>
+            <>
+              <p className="text-xs font-semibold mb-1.5 capitalize">
+                suggestion <span className="text-red-600">*</span>
+              </p>
+              <div className="border rounded focus-within:ring-2 ring-blue-500 bg-white">
+                <input type="text" value={suggestion.title} onChange={(e) => handelUpdateSuggestions(e.target.value, suggestion.id)} className="w-full px-4 py-2" placeholder="suggestion" required />
+              </div>
+            </>
+          } />
 
-          <div className="w-1/2 px-2 mb-4">
-            <p className="text-xs font-semibold mb-1.5 capitalize">
-              answer <span className="text-red-600">*</span>
-            </p>
-            <div className="border rounded focus-within:ring-2 ring-blue-600 bg-white">
-              <input type="text" className="w-full px-4 py-2" placeholder="canal" />
-            </div>
-          </div>
+          <QuestionFormField className="w-full lg:w-1/2 px-2 mb-4" isAdd={false} isDel={false} data={data} updateData={updateData} renderItem={(question) =>
+            <>
+              <p className="text-xs font-semibold mb-1.5 capitalize">
+                answer <span className="text-red-600">*</span>
+              </p>
+              <div className="border rounded focus-within:ring-2 ring-blue-500 bg-white">
+                <input type="text" value={question.answer?.answerName} onChange={(e) => handelUpdate(e.target.value, question.id)} className="w-full px-4 py-2" placeholder="canal" required />
+              </div>
+            </>
+          } />
         </div>
-      } />
+      </div>
+
     </div>
   )
 }

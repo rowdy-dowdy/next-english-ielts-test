@@ -34,7 +34,7 @@ const AdminFormFieldText: React.FC<State> = ({
         ? <p className="text-sm font-medium mb-1 capitalize">{label} { required && <span className="text-red-500">*</span> }</p>
         : null
       }
-      <div className="border rounded focus-within:ring-2 ring-blue-600 bg-white">
+      <div className="border rounded focus-within:ring-2 ring-blue-500 bg-white">
         <input type='text' name={name} value={value} defaultValue={defaultValue} onChange={(e) => changeEvent(e)} className="w-full px-4 py-2" placeholder={placeholder} required={required} />
       </div>
     </div>

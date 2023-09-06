@@ -28,7 +28,8 @@ export const MANAGER_LINKS: LinkState[] = [
   ...TABLES_SAMPLE.filter(v => !["users", "roles", "settings"].includes(v.slug)).map(v => ({
     icon: v.icon,
     name: v.name,
-    path: '/admin/' + v.slug
+    path: '/admin/' + v.slug,
+    tableName: v.tableName 
   }))
 ]
 

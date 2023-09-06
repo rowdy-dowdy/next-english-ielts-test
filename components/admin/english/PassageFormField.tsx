@@ -1,7 +1,7 @@
 "use client"
 import { AccordionDetails, AccordionSummary, Typography } from '@mui/material'
 import { Accordion, Button } from '@mui/material'
-import { FC, MouseEvent, SyntheticEvent, useState } from 'react'
+import { ChangeEvent, FC, MouseEvent, SyntheticEvent, useState } from 'react'
 import AdminFormFieldRichText from '../form-field/AdminFormFieldRichText'
 import DiagramFormField from './questions/DiagramFormField'
 import TrueFalseFormField from './questions/TrueFalseFormField'
@@ -11,6 +11,35 @@ import SummaryFormField from './questions/SummaryFormField'
 import YesNoFormField from './questions/YesNoFormField'
 import MatchingFormField from './questions/MatchingFormField'
 import "./custom.css";
+import { v4 } from 'uuid'
+import { File, GroupQuestion, Passage, Question, Answer } from '@prisma/client'
+
+type OptionTypeState = 'diagram' | 'true-false' | 'short' | 'single' | 'summary' | 'yes-no' | 'matching'
+
+export type AnswerState = Omit<Answer, 'questionId'> | null
+
+export type QuestionState = Omit<Question, 'groupQuestionId'> & {
+  answer: AnswerState
+}
+
+export type GroupQuestionOptionsState = {
+  summaryTitle: string,
+  summaryContent: string,
+  suggestions: {
+    id: string,
+    title: string
+  }[]
+} | null
+
+type GroupQuestionState = Omit<GroupQuestion, 'imageId' | 'passageId' | 'options'> & {
+  image: File | null,
+  questions: QuestionState[]
+  options: GroupQuestionOptionsState
+}
+
+type PassageState = Omit<Passage, 'quizId'> & {
+  groupQuestions: GroupQuestionState[]
+}
 
 type State = {
   label?: string,
@@ -39,15 +68,33 @@ const PassageFormField: FC<State> = ({
     setExpanded(isExpanded ? panel : false);
   }
 
-  const [data, setData] = useState<{content: string, title: string, groupQuestions: any[]}[]>([])
+  const [data, setData] = useState<PassageState[]>([])
 
   const addToData = () => {
+    const newId = v4()
     setData(state => [...state, {
+      id: newId,
       title: 'Đoạn văn ' + (state.length + 1),
       content: '',
-      groupQuestions: []
+      groupQuestions: [],
     }])
-    setExpanded(`panel-${data.length}`)
+    setExpanded(`panel-${newId}`)
+  }
+
+  const updateData = (data: GroupQuestionState[], id: string) => {
+    setData(state => state.map((v,i) => {
+      if (v.id == id) {
+        return {
+          ...v,
+          groupQuestions: data
+        }
+      }
+      return v
+    }))
+  }
+
+  const handelDeleteItem = (e: MouseEvent, id: string) => {
+    setData(state => state.filter(v => v.id != id))
   }
 
   return (
@@ -58,17 +105,25 @@ const PassageFormField: FC<State> = ({
       }
       <div className="border rounded flex flex-col">
         { data.map((v,i) =>
-          <Accordion key={i} expanded={expanded === `panel-${i}`} onChange={handleChange(`panel-${i}`)} >
+          <Accordion key={i} expanded={expanded === `panel-${v.id}`} onChange={handleChange(`panel-${v.id}`)} >
             <AccordionSummary
               expandIcon={<span className='icon'>expand_more</span>}
             >
-              <input type="text" defaultValue={v.title} />
+              <div className="w-full flex space-x-3 items-center justify-between">
+                <span className='flex-grow min-w-0'>{v.title}</span>
+                { expanded === `panel-${v.id}`
+                  ? <span className="flex-none icon text-red-500"
+                    onClick={(e) => handelDeleteItem(e, v.id)}
+                  >delete</span>
+                  : null
+                }
+              </div>
             </AccordionSummary>
             <AccordionDetails>
               <div className="mb-4">
                 <AdminFormFieldRichText />
               </div>
-              <GroupQuestion />
+              <GroupQuestion data={v.groupQuestions} updateData={(data) => updateData(data, v.id)} />
             </AccordionDetails>
           </Accordion>
         )}
@@ -85,13 +140,26 @@ const PassageFormField: FC<State> = ({
   )
 }
 
-const GroupQuestion = () => {
-  type OptionTypeState = 'diagram' | 'true-false' | 'short' | 'single' | 'summary' | 'yes-no' | 'matching'
+const GroupQuestion = ({
+  data, updateData
+}: {
+  data: GroupQuestionState[],
+  updateData: (data: GroupQuestionState[]) => void
+}) => {
 
   type QuestionTypeMap = {
     type: OptionTypeState;
     label: string;
-    component: FC;
+    component: FC<{
+      data: any, updateData: (data: QuestionState[]) => void
+    }> | FC<{
+      data: any, updateData: (data: QuestionState[]) => void,
+      image: File | null, setImage: (data: File | null) => void,
+    }> | FC<{
+      data: any, updateData: (data: QuestionState[]) => void,
+      options: GroupQuestionOptionsState,
+      setOptions: (data: GroupQuestionOptionsState) => void
+    }>
   };
 
   const groupQuestionsListAdd: QuestionTypeMap[] = [
@@ -112,26 +180,82 @@ const GroupQuestion = () => {
 
   const [showAdd, setShowAdd] = useState(false)
 
-  const [data, setData] = useState<{
-    type: OptionTypeState,
-    title: string,
-    image: string | null,
-    questions: any[]
-  }[]>([])
-
   const addToData = (e: MouseEvent, type: OptionTypeState) => {
     e.preventDefault()
 
     const titleGroupQuestion = groupQuestionsListAdd.find(v => v.type == type)?.label || 'Nhóm câu hỏi'
 
-    setData(state => [...state, {
+    const newId = v4()
+    const newData: GroupQuestionState[] = [...data, {
+      id: newId,
       title: titleGroupQuestion,
       type: type,
       image: null,
+      options: {
+        suggestions: [],
+        summaryContent: '',
+        summaryTitle: ''
+      },
       questions: []
-    }])
-    setExpanded(`panel-${data.length}`)
+    }]
+
+    updateData(newData)
+
+    setExpanded(`panel-${newId}`)
     setShowAdd(false)
+  }
+
+  const handelDeleteGroup = (e: MouseEvent, id: string) => {
+    e.preventDefault()
+    const newData = data.filter(v => v.id != id)
+
+    updateData(newData)
+  }
+
+  const handelChangeTitle = (e: ChangeEvent<HTMLInputElement>, id: string) => {
+    e.preventDefault()
+
+    const newData = data.map(v => {
+      if (v.id == id) {
+        return {...v, title: e.target.value}
+      }
+      return v
+    })
+
+    updateData(newData)
+  }
+
+  const handelChangeImage = (image: File | null, id: string) => {
+    const newData = data.map(v => {
+      if (v.id == id) {
+        return {...v, image: image}
+      }
+      return v
+    })
+
+    updateData(newData)
+  }
+
+  const handelChangeOptions = (options: GroupQuestionOptionsState, id: string) => {
+    const newData = data.map(v => {
+      if (v.id == id) {
+        return {...v, options: options}
+      }
+      return v
+    })
+
+    updateData(newData)
+  }
+
+  const handelUpdateQuestion = (questions: QuestionState[], id: string) => {
+    const newData = data.map(v => {
+      if (v.id == id) {
+        return {...v, questions: questions}
+      }
+      return v
+    })
+
+    updateData(newData)
   }
 
   return (
@@ -141,14 +265,31 @@ const GroupQuestion = () => {
         { data.map((v,i) => {
           const Component = groupQuestionsListAdd.find(v2 => v2.type == v.type)?.component
           
-          return <Accordion key={i} expanded={expanded === `panel-${i}`} onChange={handleChange(`panel-${i}`)} >
+          return <Accordion key={i} expanded={expanded === `panel-${v.id}`} onChange={handleChange(`panel-${v.id}`)} >
             <AccordionSummary
               expandIcon={<span className='icon'>expand_more</span>}
             >
-              <input type="text" defaultValue={v.title} />
+              <div className="w-full flex space-x-3 items-center justify-between">
+                <input type="text" value={v.title} onChange={(e) => handelChangeTitle(e, v.id)} className='flex-grow min-w-0' />
+                { expanded === `panel-${v.id}`
+                  ? <span className="flex-none icon text-red-500"
+                    onClick={(e) => handelDeleteGroup(e, v.id)}
+                  >delete</span>
+                  : null
+                }
+              </div>
             </AccordionSummary>
             <AccordionDetails>
-              { Component ? <Component /> : null}
+              { Component 
+                ? <Component data={v.questions} 
+                  updateData={(data) => handelUpdateQuestion(data, v.id)} 
+                  image={v.image} 
+                  setImage={(image) => handelChangeImage(image, v.id)} 
+                  options={v.options}
+                  setOptions={(options) => handelChangeOptions(options, v.id)}
+                /> 
+                : null
+              }
             </AccordionDetails>
           </Accordion>
         })}

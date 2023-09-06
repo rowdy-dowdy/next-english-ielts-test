@@ -1,15 +1,75 @@
 "use client"
 
+import { MouseEvent, useEffect, useState } from "react"
 import AdminFormFieldText from "../../form-field/AdminFormFieldText"
+import { QuestionState } from "../PassageFormField"
 import QuestionFormField from "../QuestionFormField"
+import { v4 } from "uuid"
 
-const SingleFormField = () => {
+const SingleFormField = ({
+  data, updateData
+}: {
+  data: QuestionState[]
+  updateData: (data: QuestionState[]) => void
+}) => {
+  const [chooseValue, setChooseValue] = useState<{
+    id: string,
+    value: 'a' | 'b' | 'c' | 'd'
+  }[]>(data.map(v => ({id: v.id, value: 'a'})))
+
+  useEffect(() => {
+    setChooseValue(state => data.map(v => ({
+      id: v.id, value: state.find(v2 => v2.id == v.id)?.value || 'a'
+    })))
+  }, [data])
+  
+
+  const handelUpdate = (value: string, id: string, type: 'questionName' | 'a' | 'b' | 'c' | 'd') => {
+    const newData: QuestionState[] = data.map(v => {
+      if (v.id == id) {
+        if (type == 'questionName') {
+          return {...v, questionName: value}
+        }
+
+        return {
+          ...v,
+          optionA: type == 'a' ? value : '',
+          optionB: type == 'b' ? value : '',
+          optionC: type == 'c' ? value : '',
+          optionD: type == 'd' ? value : '',
+          answer: v.answer ? {
+            ...v.answer,
+            answerName: value
+          } : { id: v4(), answerName: value }
+        }
+      }
+      return v
+    })
+
+    updateData(newData)
+  }
+
+  const handelClick = (e: MouseEvent, id: string,  type: 'a' | 'b' | 'c' | 'd') => {
+    e.preventDefault()
+    setChooseValue(state => state.map(v => {
+      if (v.id == id) {
+        return {...v, value: type}
+      }
+      return v
+    }))
+  }
+
   return (
     <QuestionFormField 
-      label="Nhóm câu hỏi" 
-      renderItem={(index) => 
+      data={data} updateData={updateData}
+      renderItem={(question) => 
         <>
-          <AdminFormFieldText label="question name" placeholder="What is the writer's main point in the first paragraph?"/>
+          <AdminFormFieldText 
+            label="question name" 
+            placeholder="What is the writer's main point in the first paragraph?"
+            required
+            value={question.questionName || ''} onChange={(v) => handelUpdate(v, question.id, "questionName")}
+          />
 
           <div className="mt-4">
             <p className="text-xs font-semibold mb-1.5 capitalize">
@@ -18,37 +78,77 @@ const SingleFormField = () => {
             <div className="flex -mx-2 flex-wrap">
               <div className="w-1/2 px-2 mb-4">
                 <div 
-                  className="w-full flex items-center space-x-2 rounded border bg-white py-1 px-2"
+                  className={`w-full flex items-center space-x-2 rounded border text-gray-200 bg-white py-1 px-2
+                    ${chooseValue.find(v => v.id == question.id)?.value == 'a' ? 'border-blue-300 !bg-blue-100 !text-blue-200' : ''}
+                  `}
                 >
-                  <span className="grid w-7 h-7 place-items-center rounded-full bg-gray-200 font-semibold">A</span>
-                  <input type="text" className="w-full py-1" placeholder="Our use of technology is having a hidden effect on us." />
+                  <button 
+                    className="grid w-7 h-7 place-items-center rounded-full bg-current font-semibold"
+                    onClick={(e) => handelClick(e, question.id, "a")}
+                  ><span className="text-[#333]">A</span></button>
+                  <input type="text" 
+                    value={question.optionA || ''} 
+                    onChange={(e) => handelUpdate(e.target.value, question.id, "a")} 
+                    className="w-full py-1 text-[#333]" 
+                    placeholder="Our use of technology is having a hidden effect on us." required 
+                  />
                 </div>
               </div>
 
               <div className="w-1/2 px-2 mb-4">
                 <div 
-                  className="w-full flex items-center space-x-2 rounded border bg-white py-1 px-2"
+                  className={`w-full flex items-center space-x-2 rounded border text-gray-200 bg-white py-1 px-2
+                    ${chooseValue.find(v => v.id == question.id)?.value == 'b' ? 'border-blue-300 !bg-blue-100 !text-blue-200' : ''}
+                  `}
                 >
-                  <span className="grid w-7 h-7 place-items-center rounded-full bg-gray-200 font-semibold">B</span>
-                  <input type="text" className="w-full py-1" placeholder="Technology can be used to help youngsters to read." />
+                  <button 
+                    className="grid w-7 h-7 place-items-center rounded-full bg-current font-semibold"
+                    onClick={(e) => handelClick(e, question.id, "b")}
+                  ><span className="text-[#333]">B</span></button>
+                  <input type="text" 
+                    value={question.optionB || ''} 
+                    onChange={(e) => handelUpdate(e.target.value, question.id, "b")} 
+                    className="w-full py-1 text-[#333]" 
+                    placeholder="Technology can be used to help youngsters to read." required 
+                  />
                 </div>
               </div>
 
               <div className="w-1/2 px-2 mb-4">
                 <div 
-                  className="w-full flex items-center space-x-2 rounded border bg-white py-1 px-2"
+                  className={`w-full flex items-center space-x-2 rounded border text-gray-200 bg-white py-1 px-2
+                    ${chooseValue.find(v => v.id == question.id)?.value == 'c' ? 'border-blue-300 !bg-blue-100 !text-blue-200' : ''}
+                  `}
                 >
-                  <span className="grid w-7 h-7 place-items-center rounded-full bg-gray-200 font-semibold">C</span>
-                  <input type="text" className="w-full py-1" placeholder="Travellers should be encouraged to use technology on planes." />
+                  <button 
+                    className="grid w-7 h-7 place-items-center rounded-full bg-current font-semibold"
+                    onClick={(e) => handelClick(e, question.id, "c")}
+                  ><span className="text-[#333]">C</span></button>
+                  <input type="text" 
+                    value={question.optionC || ''} 
+                    onChange={(e) => handelUpdate(e.target.value, question.id, "c")} 
+                    className="w-full py-1 text-[#333]" 
+                    placeholder="Travellers should be encouraged to use technology on planes." required 
+                  />
                 </div>
               </div>
 
               <div className="w-1/2 px-2 mb-4">
                 <div 
-                  className="w-full flex items-center space-x-2 rounded border bg-white py-1 px-2"
+                  className={`w-full flex items-center space-x-2 rounded border text-gray-200 bg-white py-1 px-2
+                    ${chooseValue.find(v => v.id == question.id)?.value == 'd' ? 'border-blue-300 !bg-blue-100 !text-blue-200' : ''}
+                  `}
                 >
-                  <span className="grid w-7 h-7 place-items-center rounded-full bg-gray-200 font-semibold">D</span>
-                  <input type="text" className="w-full py-1" placeholder="Playing games is a more popular use of technology than reading." />
+                  <button 
+                    className="grid w-7 h-7 place-items-center rounded-full bg-current font-semibold"
+                    onClick={(e) => handelClick(e, question.id, "d")}
+                  ><span className="text-[#333]">D</span></button>
+                  <input type="text" 
+                    value={question.optionD || ''} 
+                    onChange={(e) => handelUpdate(e.target.value, question.id, "d")} 
+                    className="w-full py-1 !text-[#111]" 
+                    placeholder="Playing games is a more popular use of technology than reading." required 
+                  />
                 </div>
               </div>
             </div>
