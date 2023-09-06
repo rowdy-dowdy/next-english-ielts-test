@@ -13,7 +13,7 @@ const SummaryFormField = ({
   data: QuestionState[]
   updateData: (data: QuestionState[]) => void,
   options: GroupQuestionOptionsState,
-  setOptions: (data: GroupQuestionOptionsState) => void
+  setOptions: (data: {options: GroupQuestionOptionsState, questions?: QuestionState[]}) => void
 }) => {
 
   const handelChangeOptions = (value: string, type: 'title' | 'content') => {
@@ -26,10 +26,10 @@ const SummaryFormField = ({
       suggestions: []
     }
 
-    setOptions(newOptions)
+    setOptions({options: newOptions})
   }
 
-  const handelUpdateSuggestions = (value: string, id: string) => {
+  const handelUpdateOptions = (value: string, id: string) => {
     const newSuggestions = (options?.suggestions || []).map(v => {
       if (v.id == id) {
         return {
@@ -46,7 +46,17 @@ const SummaryFormField = ({
       suggestions: newSuggestions
     }
 
-    setOptions(newData)
+    setOptions({options: newData})
+  }
+
+  const handelUpdateSuggestions = (newSuggestions: any[]) => {
+    const newData = options ? {...options, suggestions: newSuggestions} : {
+      summaryTitle: '',
+      summaryContent: '',
+      suggestions: newSuggestions
+    }
+
+    setOptions({options: newData})
   }
 
   const handelUpdate = (value: string, id: string) => {
@@ -67,8 +77,7 @@ const SummaryFormField = ({
   }
 
   const changeQuestion = (longText: string) => {
-    console.log({longText})
-    let newSuggestions: any[] = []
+    let newSuggestions: any[] = (options?.suggestions || [])
     let newData = data
     let count = (longText.split("__") || []).length - 1
     
@@ -87,7 +96,6 @@ const SummaryFormField = ({
       }))
 
       newData = [...data, ...temp]
-
       if (newData.length > (options?.suggestions || []).length) {
         let temp = new Array(newData.length - (options?.suggestions || []).length).fill({id: v4(), title: ''})
         newSuggestions = [...(options?.suggestions || []), ...temp]
@@ -102,8 +110,8 @@ const SummaryFormField = ({
       summaryContent: '',
       suggestions: newSuggestions
     }
-    setOptions(newOptions)
-    updateData(newData)
+
+    setOptions({options: newOptions, questions: newData})
   }
 
   useEffect(() => {
@@ -124,18 +132,18 @@ const SummaryFormField = ({
 
       <div className="w-full lg:w-1/2 px-2 mb-4">
         <div className="flex flex-wrap -mx-2">
-          <QuestionFormField2 className="w-full lg:w-1/2 px-2 mb-4" data={options?.suggestions || []} updateData={updateData} renderItem={(suggestion) =>
+          <QuestionFormField2 label="Nhóm câu gợi ý" className="w-full lg:w-1/2 px-2 mb-4" data={options?.suggestions || []} updateData={handelUpdateSuggestions} renderItem={(suggestion) =>
             <>
               <p className="text-xs font-semibold mb-1.5 capitalize">
                 suggestion <span className="text-red-600">*</span>
               </p>
               <div className="border rounded focus-within:ring-2 ring-blue-500 bg-white">
-                <input type="text" value={suggestion.title} onChange={(e) => handelUpdateSuggestions(e.target.value, suggestion.id)} className="w-full px-4 py-2" placeholder="suggestion" required />
+                <input type="text" value={suggestion.title} onChange={(e) => handelUpdateOptions(e.target.value, suggestion.id)} className="w-full px-4 py-2" placeholder="suggestion" required />
               </div>
             </>
           } />
 
-          <QuestionFormField className="w-full lg:w-1/2 px-2 mb-4" isAdd={false} isDel={false} data={data} updateData={updateData} renderItem={(question) =>
+          <QuestionFormField label="Nhóm câu trả lời" className="w-full lg:w-1/2 px-2 mb-4" isAdd={false} isDel={false} data={data} updateData={updateData} renderItem={(question) =>
             <>
               <p className="text-xs font-semibold mb-1.5 capitalize">
                 answer <span className="text-red-600">*</span>

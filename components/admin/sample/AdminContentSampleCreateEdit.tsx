@@ -67,6 +67,8 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
     value: string
   }[]>(columns.filter(v => v.type == "slug").map(v => ({ name: v.name, value: data ? data[v.name] || '' : ''})))
 
+  // const 
+
   const onChangeValue = (value: any, name: string) => {
     //@ts-ignore
     let column = columns.filter(v => v.type == "slug").find(v => v.details.tableNameSlug == name)

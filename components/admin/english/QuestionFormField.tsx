@@ -1,7 +1,7 @@
 "use client"
 
 import { Accordion, AccordionDetails, AccordionSummary, Button } from "@mui/material"
-import { FC, MouseEvent, ReactNode, SyntheticEvent, useState } from "react"
+import { FC, MouseEvent, ReactNode, SyntheticEvent, memo, useState } from "react"
 import { QuestionState } from "./PassageFormField"
 import { v4 } from "uuid"
 
@@ -16,7 +16,7 @@ type State = {
   className?: string
 }
 
-const QuestionFormField: React.FC<State> = ({
+const QuestionFormField: React.FC<State> = memo(({
   data,
   updateData,
   label = "Nhóm câu hỏi",
@@ -98,11 +98,11 @@ const QuestionFormField: React.FC<State> = ({
       </div>
     </div>
   )
-}
+})
 
 type State2 = {
   data: any[],
-  updateData: (data: QuestionState[]) => void,
+  updateData: (data: any[]) => void,
   label?: string,
   name?: string,
   renderItem: (question: any) => ReactNode,
@@ -111,7 +111,7 @@ type State2 = {
   className?: string
 }
 
-export const QuestionFormField2: React.FC<State2> = ({
+export const QuestionFormField2: React.FC<State2> = memo(({
   data,
   updateData,
   label = "Nhóm câu hỏi",
@@ -126,7 +126,6 @@ export const QuestionFormField2: React.FC<State2> = ({
   const handleChange = (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   }
-
   const addToData = (e: MouseEvent) => {
     e.preventDefault()
 
@@ -185,6 +184,6 @@ export const QuestionFormField2: React.FC<State2> = ({
       </div>
     </div>
   )
-}
+})
 
 export default QuestionFormField

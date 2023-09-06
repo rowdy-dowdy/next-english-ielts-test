@@ -1,7 +1,7 @@
 "use client"
 import { AccordionDetails, AccordionSummary, Typography } from '@mui/material'
 import { Accordion, Button } from '@mui/material'
-import { ChangeEvent, FC, MouseEvent, SyntheticEvent, useState } from 'react'
+import { ChangeEvent, FC, MouseEvent, SyntheticEvent, memo, useEffect, useState } from 'react'
 import AdminFormFieldRichText from '../form-field/AdminFormFieldRichText'
 import DiagramFormField from './questions/DiagramFormField'
 import TrueFalseFormField from './questions/TrueFalseFormField'
@@ -48,7 +48,7 @@ type State = {
   defaultValue?: string,
   value?: string,
   placeholder?: string,
-  onChange?: (value: string) => void
+  onChange?: (data: any) => void
   className?: string
 }
 
@@ -93,9 +93,27 @@ const PassageFormField: FC<State> = ({
     }))
   }
 
+  const handelChangeContent = (value: string, id: string) => {
+    setData(state => state.map((v,i) => {
+      if (v.id == id) {
+        return {
+          ...v,
+          content: value
+        }
+      }
+      return v
+    }))
+  }
+
   const handelDeleteItem = (e: MouseEvent, id: string) => {
     setData(state => state.filter(v => v.id != id))
   }
+
+  useEffect(() => {
+    if (typeof onChange == 'function') {
+      onChange(data)
+    }
+  }, [data])
 
   return (
     <div className={className}>
@@ -103,6 +121,7 @@ const PassageFormField: FC<State> = ({
         ? <p className="text-sm font-medium mb-1 capitalize">{label} { required && <span className="text-red-500">*</span> }</p>
         : null
       }
+      <input type="hidden" name={name} value={JSON.stringify(data)} />
       <div className="border rounded flex flex-col">
         { data.map((v,i) =>
           <Accordion key={i} expanded={expanded === `panel-${v.id}`} onChange={handleChange(`panel-${v.id}`)} >
@@ -121,7 +140,7 @@ const PassageFormField: FC<State> = ({
             </AccordionSummary>
             <AccordionDetails>
               <div className="mb-4">
-                <AdminFormFieldRichText />
+                <AdminFormFieldRichText value={v.content} onChange={(data) => handelChangeContent(data, v.id)} />
               </div>
               <GroupQuestion data={v.groupQuestions} updateData={(data) => updateData(data, v.id)} />
             </AccordionDetails>
@@ -140,7 +159,7 @@ const PassageFormField: FC<State> = ({
   )
 }
 
-const GroupQuestion = ({
+const GroupQuestion = memo(({
   data, updateData
 }: {
   data: GroupQuestionState[],
@@ -158,7 +177,7 @@ const GroupQuestion = ({
     }> | FC<{
       data: any, updateData: (data: QuestionState[]) => void,
       options: GroupQuestionOptionsState,
-      setOptions: (data: GroupQuestionOptionsState) => void
+      setOptions: (data: {options: GroupQuestionOptionsState, questions?: QuestionState[]}) => void
     }>
   };
 
@@ -236,10 +255,15 @@ const GroupQuestion = ({
     updateData(newData)
   }
 
-  const handelChangeOptions = (options: GroupQuestionOptionsState, id: string) => {
+  const handelChangeOptions = ({ options, questions, id }:{
+    options: GroupQuestionOptionsState, id: string, questions?: QuestionState[]
+  }) => {
     const newData = data.map(v => {
       if (v.id == id) {
-        return {...v, options: options}
+        return {...v, 
+          options: options,
+          questions: questions ? questions : v.questions
+        }
       }
       return v
     })
@@ -286,7 +310,7 @@ const GroupQuestion = ({
                   image={v.image} 
                   setImage={(image) => handelChangeImage(image, v.id)} 
                   options={v.options}
-                  setOptions={(options) => handelChangeOptions(options, v.id)}
+                  setOptions={({options, questions}) => handelChangeOptions({options, questions, id: v.id})}
                 /> 
                 : null
               }
@@ -324,6 +348,6 @@ const GroupQuestion = ({
       </div>
     </div>
   )
-}
+})
 
 export default PassageFormField
