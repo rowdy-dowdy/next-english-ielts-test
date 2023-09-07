@@ -186,7 +186,7 @@ const AdminContentSample: React.FC<SampleStateType> = ({
         <Button variant="contained" color='error' disabled={!canDelete || checked.length == 0} 
           onClick={() => showDeleteModal()}
           startIcon={(
-            <span className="material-symbols-outlined">
+            <span className="icon">
               delete
             </span>
           )}
@@ -195,7 +195,7 @@ const AdminContentSample: React.FC<SampleStateType> = ({
         </Button>
 
         <Button href={`${pathname}/create`} disabled={!canCreate} LinkComponent={Link} className='!ml-auto' variant="contained" startIcon={(
-          <span className="material-symbols-outlined">
+          <span className="icon">
             add
           </span>
         )}>
@@ -204,10 +204,10 @@ const AdminContentSample: React.FC<SampleStateType> = ({
 
         <div className="relative">
           <button className="flex space-x-2 p-2 pr-2 bg-white border rounded shadow" onClick={handleClickShowField}>
-            <span className="material-symbols-outlined icon-fill">
+            <span className="icon icon-fill">
               settings
             </span>
-            <span className="material-symbols-outlined">
+            <span className="icon">
               arrow_drop_down
             </span>
           </button>
@@ -280,6 +280,7 @@ const AdminContentSample: React.FC<SampleStateType> = ({
                           : column.type == 'file' ? ViewFileField(row[column.name])
                           : column.type == 'relation' ? ViewRelationField(row[column.name], column.details.titleRelation)
                           : column.type == 'permissions' ? null
+                          : (column.type == "custom" && column.details.customComponentView) ? column.details.customComponentView(row[column.name])
                           : <span className={column.name == "id" ? 'whitespace-nowrap' : ''}>{row[column.name] || ''}</span>
                         }
                       </TableCell>
@@ -287,19 +288,19 @@ const AdminContentSample: React.FC<SampleStateType> = ({
                     <TableCell align="right">
                       <div className="flex space-x-1 items-center justify-end">
                         {/* <Button color='warning' variant='contained' size='small' startIcon={(
-                          <span className="material-symbols-outlined">
+                          <span className="icon">
                             visibility
                           </span>
                         )}>Xem</Button> */}
                         <Button LinkComponent={Link} href={`${pathname}/${row.id}`} disabled={!canDelete} color='primary' variant='contained' size='small' startIcon={(
-                          <span className="material-symbols-outlined">
+                          <span className="icon">
                             edit
                           </span>
                         )}>Sửa</Button>
                         <Button color='error' disabled={!canDelete} variant='contained' size='small' 
                           onClick={() => showDeleteModal(row.id)}
                           startIcon={(
-                            <span className="material-symbols-outlined">
+                            <span className="icon">
                               delete
                             </span>
                           )}
@@ -340,7 +341,7 @@ const AdminContentSample: React.FC<SampleStateType> = ({
             <div className="p-4 flex items-center justify-between">
               <h5 className="text-lg font-medium">Xóa bản ghi</h5>
               <button className='flex' onClick={handleCloseModalDelete}>
-                <span className="material-symbols-outlined">
+                <span className="icon">
                   close
                 </span>
               </button>
@@ -408,7 +409,7 @@ const ViewPublishField = (value: string) => {
 
 const ViewFileField = (data: File | File[] | null) => {
   if (data == null) {
-    return null
+    return <p>...</p>
   }
 
   const files = Array.isArray(data) ? data : [data]
@@ -429,7 +430,7 @@ const ViewFileField = (data: File | File[] | null) => {
 
 const ViewRelationField = (data: any | any[] | null, title: string) => {
   if (data == null) {
-    return null
+    return <p>...</p>
   }
 
   const list = Array.isArray(data) ? data : [data]

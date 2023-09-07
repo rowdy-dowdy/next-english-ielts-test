@@ -5,10 +5,10 @@ import { QuestionState } from "../PassageFormField"
 import QuestionFormField from "../QuestionFormField"
 
 const ShortFormField = ({
-  data, updateData
+  data, updateData, beforeCount
 }: {
   data: QuestionState[]
-  updateData: (data: QuestionState[]) => void
+  updateData: (data: QuestionState[]) => void, beforeCount: number
 }) => {
 
   const handelUpdate = (value: string, id: string, type: 'questionName' | 'answer') => {
@@ -33,7 +33,7 @@ const ShortFormField = ({
   }
 
   return (
-    <QuestionFormField data={data} updateData={updateData} renderItem={(question) => 
+    <QuestionFormField data={data} updateData={updateData} beforeCount={beforeCount} renderItem={(question) => 
       <>
         <div>
           <p className="text-xs font-semibold mb-1.5 capitalize">

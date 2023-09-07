@@ -273,7 +273,7 @@ const AdminFileModal: React.FC<ModalType> = ({
                               <div key={v.id} className="flex flex-col items-center space-y-1 px-2 py-2 bg-blue-50 rounded relative group cursor-pointer"
                                 onClick={() => handelClickFolder(v.id)}
                               >
-                                <span className="material-symbols-outlined icon-fill !text-5xl text-blue-500">folder</span>
+                                <span className="icon icon-fill !text-5xl text-blue-500">folder</span>
                                 <span className="line-clamp-3 text-center text-sm">{v.name}</span>
                                 <div className="absolute top-0 right-2 w-8 h-8 rounded border p-1.5 bg-white hover:bg-gray-100 cursor-pointer hidden group-hover:block"
                                   onClick={(e) => handelAddEditFolder(e,v)}
@@ -299,7 +299,7 @@ const AdminFileModal: React.FC<ModalType> = ({
                                     <input type="checkbox" value={v.id} checked={isChecked(v.id)} onChange={(e) => handleCheck(e)} />
                                   </div>
                                   <span
-                                    className="absolute top-2 right-2 material-symbols-outlined w-8 h-8 !text-[18px] rounded border p-1.5 bg-white hover:bg-gray-100 cursor-pointer hidden group-hover:block"
+                                    className="absolute top-2 right-2 icon w-8 h-8 !text-[18px] rounded border p-1.5 bg-white hover:bg-gray-100 cursor-pointer hidden group-hover:block"
                                     onClick={() => editFile(v)}
                                   >
                                     edit
@@ -337,7 +337,7 @@ const AdminFileModal: React.FC<ModalType> = ({
                             <input type="checkbox" value={v.id} checked={isChecked(v.id)} onChange={(e) => handleCheck(e)} />
                           </div>
                           <span
-                            className="absolute top-2 right-2 material-symbols-outlined w-8 h-8 !text-[18px] rounded border p-1.5 bg-white hover:bg-gray-100 cursor-pointer hidden group-hover:block"
+                            className="absolute top-2 right-2 icon w-8 h-8 !text-[18px] rounded border p-1.5 bg-white hover:bg-gray-100 cursor-pointer hidden group-hover:block"
                             onClick={() => editFile(v)}
                           >
                             edit

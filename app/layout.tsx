@@ -22,7 +22,7 @@ export default async function RootLayout({
     <html lang='vi'>
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" />
         { siteFavicon
           ? <link rel="icon" type={siteFavicon.mime} href={siteFavicon.url}></link>
           : null

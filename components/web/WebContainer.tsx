@@ -10,7 +10,7 @@ const WebContainer = ({
   children: ReactNode
 }) => {
   return (
-    <div className={twMerge('w-full max-w-screen-lg mx-auto px-4', className)}>{children}</div>
+    <div className={twMerge('w-full max-w-screen-xl mx-auto px-4', className)}>{children}</div>
   )
 }
 

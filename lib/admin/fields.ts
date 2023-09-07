@@ -23,8 +23,9 @@ export type DataFieldType = Record<SampleFieldAndDetailsType['type'], {
     value?: any,
     onChange?: (data: any) => void
     className?: string,
-    details: any
-  }> | null
+    details: any,
+  }> | null,
+  defaultValue?: any
 }>
 
 export const DATA_FIELDS: DataFieldType = {
@@ -40,7 +41,7 @@ export const DATA_FIELDS: DataFieldType = {
   'publish': { fieldName: "Publish", icon: 'publish', Component: null },
   'permissions': { fieldName: "Permission", icon: 'encrypted', Component: AdminFormFieldPermissions },
   'password': { fieldName: "Password", icon: 'key', Component: AdminFormFieldPassword },
-  'custom': { fieldName: "Custom", icon: 'instant_mix', Component: AdminFormFieldText },
+  'custom': { fieldName: "Custom", icon: 'instant_mix', Component: AdminFormFieldText},
 }
 
 export const findSettingByName = (arr: any[], name: string) : any | undefined => {

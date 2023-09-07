@@ -2,10 +2,11 @@ import { VariantType, enqueueSnackbar } from "notistack"
 
 export const promiseFunction = async ({
   loading, setLoading, callback, successTitle = 'Thành công',
-  showSuccessTitle = true
+  showSuccessTitle = true, setError
 }: {
   loading?: boolean,
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>,
+  setError?: React.Dispatch<React.SetStateAction<string>>,
   callback: () => Promise<void>,
   successTitle?: string,
   showSuccessTitle?: boolean
@@ -24,12 +25,18 @@ export const promiseFunction = async ({
   } 
   catch (error: any) {
     let variant: VariantType = "error"
-    enqueueSnackbar((typeof error?.message === "string") ? (
+    let text = (typeof error?.message === "string") ? (
       error.message.startsWith("Error: ") ? error.message.substring("Error: ".length) : error.message
-    ) : 'Có lỗi xảy ra, vui lòng thử lại sau', { variant })
+    ) : 'Có lỗi xảy ra, vui lòng thử lại sau'
+    enqueueSnackbar(text, { variant })
+
+    if (typeof setError == "function") {
+      setError(text)
+    }
   } 
   finally {
-    if (typeof setLoading == "function")
+    if (typeof setLoading == "function") {
       setLoading(false)
+    }
   }
 }

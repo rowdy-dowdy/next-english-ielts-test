@@ -5,6 +5,7 @@ import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import db from "@/lib/admin/prismadb"
+import { NextApiRequest, NextApiResponse } from "next"
 
 export const authOptions: AuthOptions = {
   session: {
@@ -16,7 +17,8 @@ export const authOptions: AuthOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'email', type: 'text' },
-        password: { label: 'password', type: 'password' }
+        password: { label: 'password', type: 'password' },
+        remember: { label: 'remember', type: 'text' }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -80,4 +82,32 @@ export const authOptions: AuthOptions = {
   // secret: process.env.JWT_KEY,
 }
 
-export default NextAuth(authOptions);
+// export default NextAuth(authOptions);
+
+export default async function handel(req: NextApiRequest, res: NextApiResponse) {
+  const cookies = req.cookies
+
+  let maxAge = 86400;
+
+  if (cookies["remember-me"]) {
+    maxAge = cookies["remember-me"] == "true" ? 2592000 : 86400
+  } else if (req.body.remember) {
+    maxAge = req.body.remember == "true" ? 2592000 : 86400
+
+    res.setHeader('set-cookie', [
+      `remember-me=${encodeURIComponent(req.body.remember)}; Max-Age=${maxAge}; Path=/`
+    ])
+  }
+
+  return await NextAuth(req, res, {
+    ...authOptions,
+    session: {
+      strategy: "jwt",
+      maxAge
+    },
+    secret: process.env.NEXTAUTH_SECRET,
+    jwt: {
+      maxAge
+    }
+  })
+}

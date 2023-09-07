@@ -10,7 +10,7 @@ const page = async ({
   const data = await useCurrentUserAdmin()
 
   if (data) {
-    const url = searchParams['url'] || '/admin'
+    const url = searchParams?.url || '/admin'
     redirect(url)
   }
 

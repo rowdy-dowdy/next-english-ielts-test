@@ -25,7 +25,7 @@ export default async ({ params: { id, slug } } : PageState) => {
     return <div>Bạn không có quyền truy cập trang này</div>
   }
 
-  const data = await getItemDataSample({id, tableName: table.tableName, columns: table.columns})
+  const data = await getItemDataSample({id, tableName: table.tableName})
 
   if (data == null) {
     return <div className="">Không tìm thấy bản ghi</div>

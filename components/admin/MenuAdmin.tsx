@@ -75,7 +75,7 @@ const MenuAdmin = ({
                 key={i}
               >
                 <div className='flex-none px-1 grid place-items-center' style={{width: "44px"}}>
-                  <span className="material-symbols-outlined icon-500">
+                  <span className="icon icon-500">
                     {v.icon || 'database'}
                   </span>
                 </div>
@@ -99,7 +99,7 @@ const MenuAdmin = ({
                 key={i}
               >
                 <div className='flex-none px-1 grid place-items-center' style={{width: "44px"}}>
-                  <span className="material-symbols-outlined icon-500">
+                  <span className="icon icon-500">
                     {v.icon}
                   </span>
                 </div>

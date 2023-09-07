@@ -42,22 +42,22 @@ type PassageState = Omit<Passage, 'quizId'> & {
 }
 
 type State = {
+  value: PassageState[],
   label?: string,
   name?: string
   required?: boolean,
   defaultValue?: string,
-  value?: string,
   placeholder?: string,
   onChange?: (data: any) => void
   className?: string
 }
 
-const PassageFormField: FC<State> = ({
+const PassageFormField: FC<State> = memo(({
+  value,
   label,
   name,
   required = false,
   defaultValue,
-  value,
   onChange,
   className,
   placeholder
@@ -68,21 +68,24 @@ const PassageFormField: FC<State> = ({
     setExpanded(isExpanded ? panel : false);
   }
 
-  const [data, setData] = useState<PassageState[]>([])
-
   const addToData = () => {
     const newId = v4()
-    setData(state => [...state, {
+    const newData = [...value, {
       id: newId,
-      title: 'Đoạn văn ' + (state.length + 1),
+      title: 'Đoạn văn ' + (value.length + 1),
       content: '',
       groupQuestions: [],
-    }])
+    }]
+
+    if (typeof onChange == 'function') {
+      onChange(newData)
+    }
+
     setExpanded(`panel-${newId}`)
   }
 
   const updateData = (data: GroupQuestionState[], id: string) => {
-    setData(state => state.map((v,i) => {
+    const newData = value.map((v,i) => {
       if (v.id == id) {
         return {
           ...v,
@@ -90,30 +93,50 @@ const PassageFormField: FC<State> = ({
         }
       }
       return v
-    }))
+    })
+
+    if (typeof onChange == 'function') {
+      onChange(newData)
+    }
   }
 
-  const handelChangeContent = (value: string, id: string) => {
-    setData(state => state.map((v,i) => {
+  const handelChangeContent = (data: string, id: string) => {
+    const newData = value.map((v,i) => {
       if (v.id == id) {
         return {
           ...v,
-          content: value
+          content: data
         }
       }
       return v
-    }))
+    })
+
+    if (typeof onChange == 'function') {
+      onChange(newData)
+    }
   }
 
   const handelDeleteItem = (e: MouseEvent, id: string) => {
-    setData(state => state.filter(v => v.id != id))
+    const newData = value.filter(v => v.id != id)
+
+    if (typeof onChange == 'function') {
+      onChange(newData)
+    }
   }
 
-  useEffect(() => {
-    if (typeof onChange == 'function') {
-      onChange(data)
+  const findQuestionBeforeCount = (id: string) => {
+    let count = 0
+    for (let i = 0; i < value.length; i++) {
+      if (value[i].id == id) {
+        break
+      }
+
+      count += value[i].groupQuestions.reduce((pre2, cur2) => {
+        return pre2 += cur2.questions.length
+      }, 0)
     }
-  }, [data])
+    return count
+  }
 
   return (
     <div className={className}>
@@ -121,9 +144,9 @@ const PassageFormField: FC<State> = ({
         ? <p className="text-sm font-medium mb-1 capitalize">{label} { required && <span className="text-red-500">*</span> }</p>
         : null
       }
-      <input type="hidden" name={name} value={JSON.stringify(data)} />
+      {/* <input type="hidden" name={name} value={JSON.stringify(data)} /> */}
       <div className="border rounded flex flex-col">
-        { data.map((v,i) =>
+        { value.map((v,i) =>
           <Accordion key={i} expanded={expanded === `panel-${v.id}`} onChange={handleChange(`panel-${v.id}`)} >
             <AccordionSummary
               expandIcon={<span className='icon'>expand_more</span>}
@@ -142,7 +165,7 @@ const PassageFormField: FC<State> = ({
               <div className="mb-4">
                 <AdminFormFieldRichText value={v.content} onChange={(data) => handelChangeContent(data, v.id)} />
               </div>
-              <GroupQuestion data={v.groupQuestions} updateData={(data) => updateData(data, v.id)} />
+              <GroupQuestion beforeCount={findQuestionBeforeCount(v.id)} data={v.groupQuestions} updateData={(data) => updateData(data, v.id)} />
             </AccordionDetails>
           </Accordion>
         )}
@@ -157,12 +180,13 @@ const PassageFormField: FC<State> = ({
       </div>
     </div>
   )
-}
+})
 
 const GroupQuestion = memo(({
-  data, updateData
+  data, updateData, beforeCount
 }: {
   data: GroupQuestionState[],
+  beforeCount: number,
   updateData: (data: GroupQuestionState[]) => void
 }) => {
 
@@ -171,11 +195,14 @@ const GroupQuestion = memo(({
     label: string;
     component: FC<{
       data: any, updateData: (data: QuestionState[]) => void
+      beforeCount: number,
     }> | FC<{
-      data: any, updateData: (data: QuestionState[]) => void,
+      data: any, updateData: (data: QuestionState[]) => void, 
+      beforeCount: number,
       image: File | null, setImage: (data: File | null) => void,
     }> | FC<{
       data: any, updateData: (data: QuestionState[]) => void,
+      beforeCount: number,
       options: GroupQuestionOptionsState,
       setOptions: (data: {options: GroupQuestionOptionsState, questions?: QuestionState[]}) => void
     }>
@@ -282,6 +309,17 @@ const GroupQuestion = memo(({
     updateData(newData)
   }
 
+  const findQuestionBeforeCount = (id: string) => {
+    let count = beforeCount
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].id == id) {
+        break
+      }
+      count += data[i].questions.length
+    }
+    return count
+  }
+
   return (
     <div>
       <p className="text-sm font-medium mb-1 capitalize">Nhóm câu hỏi <span className="text-red-600">*</span></p>
@@ -309,6 +347,7 @@ const GroupQuestion = memo(({
                   updateData={(data) => handelUpdateQuestion(data, v.id)} 
                   image={v.image} 
                   setImage={(image) => handelChangeImage(image, v.id)} 
+                  beforeCount={findQuestionBeforeCount(v.id)}
                   options={v.options}
                   setOptions={({options, questions}) => handelChangeOptions({options, questions, id: v.id})}
                 /> 

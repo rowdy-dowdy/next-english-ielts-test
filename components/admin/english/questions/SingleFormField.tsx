@@ -7,10 +7,11 @@ import QuestionFormField from "../QuestionFormField"
 import { v4 } from "uuid"
 
 const SingleFormField = ({
-  data, updateData
+  data, updateData, beforeCount
 }: {
   data: QuestionState[]
-  updateData: (data: QuestionState[]) => void
+  updateData: (data: QuestionState[]) => void,
+  beforeCount: number
 }) => {
   const [chooseValue, setChooseValue] = useState<{
     id: string,
@@ -18,9 +19,11 @@ const SingleFormField = ({
   }[]>(data.map(v => ({id: v.id, value: 'a'})))
 
   useEffect(() => {
-    setChooseValue(state => data.map(v => ({
-      id: v.id, value: state.find(v2 => v2.id == v.id)?.value || 'a'
-    })))
+    if (data.length != chooseValue.length) {
+      setChooseValue(state => data.map(v => ({
+        id: v.id, value: state.find(v2 => v2.id == v.id)?.value || 'a'
+      })))
+    }
   }, [data])
   
 
@@ -33,10 +36,10 @@ const SingleFormField = ({
 
         return {
           ...v,
-          optionA: type == 'a' ? value : '',
-          optionB: type == 'b' ? value : '',
-          optionC: type == 'c' ? value : '',
-          optionD: type == 'd' ? value : '',
+          optionA: type == 'a' ? value : v.optionA,
+          optionB: type == 'b' ? value : v.optionB,
+          optionC: type == 'c' ? value : v.optionC,
+          optionD: type == 'd' ? value : v.optionD,
           answer: v.answer ? {
             ...v.answer,
             answerName: value
@@ -57,11 +60,28 @@ const SingleFormField = ({
       }
       return v
     }))
+
+    const newData: QuestionState[] = data.map(v => {
+      if (v.id == id) {
+        const value = (type == "a" ? v.optionA : type == "b" ? v.optionB : type == "c" ? v.optionC : v.optionD) || ''
+        return {
+          ...v,
+          answer: v.answer ? {
+            ...v.answer,
+            answerName: value
+          } : { id: v4(), answerName: value }
+        }
+      }
+      return v
+    })
+
+    updateData(newData)
   }
 
   return (
     <QuestionFormField 
       data={data} updateData={updateData}
+      beforeCount={beforeCount}
       renderItem={(question) => 
         <>
           <AdminFormFieldText 

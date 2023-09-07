@@ -1,4 +1,6 @@
 import PassageFormField from "@/components/admin/english/PassageFormField"
+import PassageView from "@/components/admin/english/PassageView"
+import { customDataEnglishCreate, customDataEnglishSelect, formatDataEnglishSelect } from "@/components/admin/english/english"
 import { SampleColumnsType } from "@/lib/admin/sample"
 
 type TableType = {
@@ -77,10 +79,15 @@ export const TABLES_SAMPLE: TableType[] = [
       { name: 'title', label: 'Tên', type: 'string', show: true, required: true},
       { name: 'slug', label: 'Slug', type: 'slug', show: true, details: {
         tableNameSlug: 'title'
-      }},
+      }, required: true },
       { name: 'workTime', label: 'Thời gian làm (phút)', type: 'int', show: true, required: true},
       { name: 'passages', label: 'Đoạn văn', type: 'custom', show: true, required: true, details: {
-        customComponentEdit: PassageFormField
+        customComponentEdit: PassageFormField,
+        customComponentView: PassageView,
+        customDataCreate: customDataEnglishCreate,
+        customDataSelect: customDataEnglishSelect,
+        formatDataSelect: formatDataEnglishSelect,
+        defaultValue: []
       }, col: 12},
     
       { name: 'createdAt', label: 'Ngày tạo', type: 'date', show: true},

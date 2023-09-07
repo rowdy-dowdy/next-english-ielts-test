@@ -6,10 +6,10 @@ import { QuestionState } from "../PassageFormField"
 import { v4 } from "uuid"
 
 const DiagramFormField = ({
-  data, image, setImage, updateData
+  data, image, setImage, updateData, beforeCount
 }: {
   data: QuestionState[], image: File | null, setImage: (data: File | null) => void,
-  updateData: (data: QuestionState[]) => void
+  updateData: (data: QuestionState[]) => void, beforeCount: number
 }) => {
 
   const handelUpdate = (value: string, id: string, type: 'questionName' | 'answer') => {
@@ -42,6 +42,7 @@ const DiagramFormField = ({
         <QuestionFormField 
           data={data}
           updateData={updateData}
+          beforeCount={beforeCount}
           renderItem={(question) => 
             <>
               <div>

@@ -40,7 +40,6 @@ export async function generateMetadata(
 }
 
 const layout = async ({children}: {children: ReactNode}) => {
-
   return (
     <AuthProvider>
       <WebRootLayout children={children} />

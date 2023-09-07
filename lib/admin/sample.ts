@@ -6,6 +6,7 @@ import db from "./prismadb"
 import bcrypt from 'bcrypt'
 import { checkPermissions } from "./fields";
 import { FC } from "react";
+import { TABLES_SAMPLE } from "@/app/admin/(admin)/(sample)/[slug]/table";
 
 export type SampleColumnsType = {
   name: string,
@@ -67,8 +68,12 @@ export type SampleColumnSlugType = {
 export type SampleColumnCustomType = {
   type: 'custom',
   details: {
-    customComponentEdit: FC,
-    customComponentView?: FC,
+    customComponentEdit: FC<any>,
+    customComponentView?: FC<any>,
+    customDataCreate?: (name: string, data: any, editId?: number | string) => Promise<any>,
+    customDataSelect?: (name: string) => object,
+    formatDataSelect?: (data: any) => void,
+    defaultValue?: any
   }
 }
 
@@ -81,18 +86,19 @@ export type GetDataSampleState = {
   page: number, 
   per_page: number,
   orderBy?: string,
-  orderType?: 'asc' | 'desc',
-  columns: SampleColumnsType[]
+  orderType?: 'asc' | 'desc'
 }
 
 export const getDataSample = async ({
   page, per_page, tableName,
-  columns, orderBy, orderType
+  orderBy, orderType
 }: GetDataSampleState & { tableName: string }) => {
   // const user = await useCurrentUserAdmin()
   // if (!user) throw "Authorization"
 
   // if (!checkPermissions(user.role.permissions, tableName, "browse")) throw "Forbidden"
+
+  const columns = TABLES_SAMPLE.find(v => v.tableName == tableName)?.columns || []
 
   if (page < 1) page = 1
 
@@ -133,24 +139,31 @@ export const getDataSample = async ({
 
 export type GetItemDataSampleState = {
   id: string,
-  columns: SampleColumnsType[]
 }
 
 export const getItemDataSample = async ({
   id,
-  tableName, columns
+  tableName
 }: GetItemDataSampleState & { tableName: string }) => {
   // const user = await useCurrentUserAdmin()
   // if (!user) throw "Authorization"
 
   // if (!checkPermissions(user.role.permissions, tableName, "browse")) throw "Forbidden"
 
+  const columns = TABLES_SAMPLE.find(v => v.tableName == tableName)?.columns || []
+
   const data = await (db as any)[tableName].findUnique({
     where: {
       id: columns.find(v => v.name == "id")?.type == "int" ? (+id || 0) : id,
     },
     select: columns.reduce((pre, cur) => {
-      if (cur.type != "password") {
+      if (cur.type == "custom" && cur.details.customDataSelect) {
+        return {
+          ...pre,
+          ...cur.details.customDataSelect(cur.name)
+        }
+      }
+      else if (cur.type != "password") {
         return {...pre, [cur.name]: true}
       }
       else {
@@ -159,7 +172,16 @@ export const getItemDataSample = async ({
     }, {})
   })
 
-  return data
+  let dataFormat: any = data 
+
+  for (const property in data) {
+    let column = columns.find(v => v.name == property)
+    if (column && column?.type == "custom" && column.details.formatDataSelect) {
+      dataFormat[property] = column.details.formatDataSelect(dataFormat[property])
+    }
+  }
+
+  return dataFormat
 }
 
 export type DeleteDataSampleState = {
@@ -194,12 +216,11 @@ export const deleteDataSample = async ({
 
 export type AddEditDataSampleState = {
   data: any,
-  edit: boolean,
-  columns: SampleColumnsType[],
+  edit: boolean
 }
 
 export const addEditDataSample = async ({
-  data, edit = false, columns, tableName
+  data, edit = false, tableName
 }: AddEditDataSampleState & { tableName: string }) => {
   const user = await useCurrentUserAdmin()
   if (!user) throw "Authorization"
@@ -209,6 +230,8 @@ export const addEditDataSample = async ({
       : checkPermissions(user.role.permissions, tableName, "create"))) {
       throw "Forbidden";
     }
+
+    const columns = TABLES_SAMPLE.find(v => v.tableName == tableName)?.columns || []
 
     const intermediateResults = await Promise.all(columns.filter(v => !['id', 'createdAt', 'updatedAt', 'publish']
       .includes(v.name)).map(async (pre) => {
@@ -225,7 +248,7 @@ export const addEditDataSample = async ({
           if (data[pre.name]) {
             let tempConnect = { id: data[pre.name] }
             if (pre.details.multiple) {
-              tempConnect = JSON.parse(data[pre.name]).map((v: string) => ({
+              tempConnect = data[pre.name].map((v: string) => ({
                 id: v
               }))
             }
@@ -238,7 +261,7 @@ export const addEditDataSample = async ({
           if (data[pre.name]) {
             let tempConnect = { id: data[pre.name] }
             if (pre.details.typeRelation == 'one-to-many' || pre.details.typeRelation == 'many-to-many') {
-              tempConnect = JSON.parse(data[pre.name]).map((v: string) => ({
+              tempConnect = data[pre.name].map((v: string) => ({
                 id: v
               }))
             }
@@ -253,7 +276,7 @@ export const addEditDataSample = async ({
 
             if (!edit) {
               tempCreate = {
-                create: JSON.parse(data[pre.name]).map((v: any) =>
+                create: data[pre.name].map((v: any) =>
                   ({
                     permission: {
                       connectOrCreate: {
@@ -275,7 +298,7 @@ export const addEditDataSample = async ({
             }
             else {
 
-              await db.$transaction(JSON.parse(data[pre.name]).map((v: any) => db.permission.upsert({
+              await db.$transaction(data[pre.name].map((v: any) => db.permission.upsert({
                 where: {
                   key_tableName: {
                     key: v.key,
@@ -296,7 +319,7 @@ export const addEditDataSample = async ({
               })
 
               tempCreate = {
-                create: JSON.parse(data[pre.name]).map((v: any) =>
+                create: data[pre.name].map((v: any) =>
                   ({
                     permissionKey: v.key,
                     permissionTableName: v.tableName
@@ -309,6 +332,9 @@ export const addEditDataSample = async ({
           }
           else
             return { [pre.name]: undefined }
+        }
+        else if (pre.type == "custom" && pre.details.customDataCreate) {
+          return await pre.details.customDataCreate(pre.name, data[pre.name], data.id)
         }
         else {
           return { [pre.name]: data[pre.name] }

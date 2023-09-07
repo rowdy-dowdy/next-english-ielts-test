@@ -1,8 +1,16 @@
 import WebButton from '@/components/web/WebButton'
 import WebContainer from '@/components/web/WebContainer'
+import db from '@/lib/admin/prismadb'
 import React from 'react'
 
-const page = () => {
+const getData = async () => {
+  const quizzes = await db.quiz.findMany()
+  return { quizzes }
+}
+
+const page = async () => {
+  const { quizzes } = await getData()
+
   return (
     <WebContainer>
       <div className="w-screen max-w-none bg-rose-50 -translate-x-1/2 left-1/2 relative py-20">
@@ -24,11 +32,11 @@ const page = () => {
 
       <div className="mt-7">
         <div className="flex flex-wrap -mx-4">
-          { new Array(10).fill(0).map((v,i) => 
-            <div key={i} className="w-1/2 md:w-1/3 px-4 mb-8">
-              <h3 className="text-xl font-bold">CAM16 - Reading Test 4</h3>
+          { quizzes.map(v => 
+            <div key={v.id} className="w-1/2 md:w-1/3 px-4 mb-8">
+              <h3 className="text-xl font-bold">{v.title}</h3>
               <p className="mt-2 mb-3 text-gray-500">12K Lượt Làm</p>
-              <WebButton href='/practice/{quizze.slug}' color='white' className='py-2 rounded-lg' 
+              <WebButton href={`/practice/${v.slug}`} color='white' className='py-2 rounded-lg' 
                 icon={<span className='icon text-red-600'>play_circle</span>}
               >
                 Làm bài

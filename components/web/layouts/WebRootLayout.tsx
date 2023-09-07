@@ -22,10 +22,11 @@ const WebRootLayout = ({ children }: {
   const { findSettingByName } = useSettings()
   const logo = findSettingByName('site logo') as File | null
 
-  const [showHeader, setShowHeader] = useState(!["practice"].includes(pathname || ''))
+  const [showHeader, setShowHeader] = useState(!pathname?.split('/').includes('practice'))
 
   useEffect(() => {
-    setShowHeader(!["practice"].includes(pathname || ''))
+    console.log({pathname})
+    setShowHeader(!pathname?.split('/').includes('practice'))
   }, [pathname])
 
   // socket io
@@ -45,7 +46,7 @@ const WebRootLayout = ({ children }: {
   }
 
   useEffect(() => {
-    socketInitializer()
+    // socketInitializer()
   }, [])
 
   return (
@@ -219,17 +220,14 @@ const AvatarUser = () => {
       { session?.user
         ? <div className="relative">
           <div className="flex space-x-1 items-center" onClick={handleClick}>
-            <div className="w-10 h-10 border rounded-full overflow-hidden cursor-pointer">
+            <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
               { session.user?.image 
-                ? <img src={session.user?.image} alt="Photo by {data.user?.name}" className="w-full h-full object-cover" loading="lazy" />
-                : <div className="w-full h-full bg-blue-500 grid place-items-center">
-                  <span className="icon text-white !text-lg">user</span>
+                ? <img src={session.user?.image} alt={`Photo by ${session.user?.name}`} className="w-full h-full object-cover border rounded-full" loading="lazy" />
+                : <div className="w-full h-full bg-blue-500 flex items-center justify-center">
+                  <span className="icon icon-fill text-white !text-2xl">person</span>
                 </div>
               }
             </div>
-            <span className="icon transition-all cursor-pointer {toggle_user ? 'rotate-180' : ''}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z"></path></svg>
-            </span>
           </div>
           <Menu
             anchorEl={anchorEl}
@@ -264,33 +262,21 @@ const AvatarUser = () => {
             }}
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            disableScrollLock={true}
+            className="font-medium"
           >
-            <MenuItem>
-              <Link href="/admin/profile" className='flex items-center'>
-                <Avatar /> Trang cá nhân
-              </Link>
-            </MenuItem>
-            <MenuItem>
-              <span className="icon">user</span>
-              Tài khoản pro
-            </MenuItem>
-            <MenuItem>
-              <Link href="/admin/profile" className='flex items-center'>
-                <Avatar /> Trang cá nhân
-              </Link>
-            </MenuItem>
-            <MenuItem>
-              <Link href="/admin/profile" className='flex items-center'>
-                <Avatar /> Trang cá nhân
-              </Link>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={() => signOut()}>
-              <span className="material-symbols-outlined icon-fill text-red-600">
-                logout
-              </span>
-              <span className="text-red-600">Đăng xuất</span>
-            </MenuItem>
+            <Link href="/" className='flex items-center px-4 py-2 hover:bg-gray-100'>
+              <span className="icon mr-4">badge</span> Trang cá nhân
+            </Link>
+            <Link href="/" className='flex items-center px-4 py-2 hover:bg-gray-100'>
+              <span className="icon mr-4">upgrade</span> Tài khoản pro
+            </Link>
+            <Link href="/" className='flex items-center px-4 py-2 hover:bg-gray-100'>
+              <span className="icon mr-4">star</span> Nhận ngay học phí free
+            </Link>
+            <div className='flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={() => signOut()}>
+              <span className="icon mr-4">logout</span> Đăng xuất
+            </div>
           </Menu>
         </div>
         : <WebButton href="/auth/login" className="rounded-lg">Sign up</WebButton>

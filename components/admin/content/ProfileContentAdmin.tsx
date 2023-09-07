@@ -65,7 +65,7 @@ const ProfileContentAdmin: React.FC<State> = ({defaultValue, updateProfile}) => 
             <div className={`w-28 h-28 rounded-full border-4 border-white ${!defaultValue.image ? 'bg-blue-500' : ''} overflow-hidden grid place-items-center`}>
               { defaultValue.image
                 ? <Image src={defaultValue.image.url} alt={`image profile user ${defaultValue.name}`} width={112} height={112} className='w-full h-full object-cover' />
-                : <span className="material-symbols-outlined icon-fill !text-white !text-7xl">
+                : <span className="icon icon-fill !text-white !text-7xl">
                   person
                 </span>
               }
@@ -105,7 +105,7 @@ const ProfileContentAdmin: React.FC<State> = ({defaultValue, updateProfile}) => 
               <div className={`w-24 h-24 rounded-full border-2 border-white ${!defaultValue.image ? 'bg-blue-500' : ''} overflow-hidden shadow grid place-items-center`}>
                 { defaultValue.image
                   ? <Image src={defaultValue.image.url} alt={`image profile user ${defaultValue.name}`} width={96} height={96} className='w-full h-full object-cover' />
-                  : <span className="material-symbols-outlined icon-fill !text-white !text-6xl">
+                  : <span className="icon icon-fill !text-white !text-6xl">
                     person
                   </span>
                 }

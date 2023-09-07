@@ -239,7 +239,7 @@ model Passage {
   content String
 
   quizId  String
-  quiz    Quiz @relation(fields: [quizId], references: [id])
+  quiz    Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   groupQuestions GroupQuestion[]
 }
@@ -254,7 +254,7 @@ model GroupQuestion {
   image    File? @relation(fields: [imageId], references: [id])
 
   passageId String
-  passage    Passage @relation(fields: [passageId], references: [id])
+  passage    Passage @relation(fields: [passageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   questions Question[]
 }
@@ -269,7 +269,7 @@ model Question {
   optionD      String?
 
   groupQuestionId String
-  groupQuesstion   GroupQuestion @relation(fields: [groupQuestionId], references: [id])
+  groupQuesstion   GroupQuestion @relation(fields: [groupQuestionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   answer Answer?
 }
@@ -279,5 +279,5 @@ model Answer {
   answerName String
 
   questionId String    @unique
-  question    Question @relation(fields: [questionId], references: [id])
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

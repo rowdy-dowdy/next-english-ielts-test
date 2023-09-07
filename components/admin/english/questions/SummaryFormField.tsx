@@ -4,16 +4,17 @@ import { useEffect } from "react"
 import AdminFormFieldLongText from "../../form-field/AdminFormFieldLongText"
 import AdminFormFieldText from "../../form-field/AdminFormFieldText"
 import { GroupQuestionOptionsState, QuestionState } from "../PassageFormField"
-import QuestionFormField, { QuestionFormField2 } from "../QuestionFormField"
+import QuestionFormField from "../QuestionFormField"
 import { v4 } from "uuid"
 
 const SummaryFormField = ({
-  data, updateData, options, setOptions
+  data, updateData, options, setOptions, beforeCount
 }: {
   data: QuestionState[]
   updateData: (data: QuestionState[]) => void,
   options: GroupQuestionOptionsState,
-  setOptions: (data: {options: GroupQuestionOptionsState, questions?: QuestionState[]}) => void
+  setOptions: (data: {options: GroupQuestionOptionsState, questions?: QuestionState[]}) => void,
+  beforeCount: number
 }) => {
 
   const handelChangeOptions = (value: string, type: 'title' | 'content') => {
@@ -132,7 +133,11 @@ const SummaryFormField = ({
 
       <div className="w-full lg:w-1/2 px-2 mb-4">
         <div className="flex flex-wrap -mx-2">
-          <QuestionFormField2 label="Nhóm câu gợi ý" className="w-full lg:w-1/2 px-2 mb-4" data={options?.suggestions || []} updateData={handelUpdateSuggestions} renderItem={(suggestion) =>
+          <QuestionFormField 
+            label="Nhóm câu gợi ý" className="w-full lg:w-1/2 px-2 mb-4" 
+            data={options?.suggestions || []} defaultDataCreate={{title: ''}}
+            questionTitle="Câu gợi ý"
+            updateData={handelUpdateSuggestions} renderItem={(suggestion) =>
             <>
               <p className="text-xs font-semibold mb-1.5 capitalize">
                 suggestion <span className="text-red-600">*</span>
@@ -143,7 +148,10 @@ const SummaryFormField = ({
             </>
           } />
 
-          <QuestionFormField label="Nhóm câu trả lời" className="w-full lg:w-1/2 px-2 mb-4" isAdd={false} isDel={false} data={data} updateData={updateData} renderItem={(question) =>
+          <QuestionFormField label="Nhóm câu trả lời" className="w-full lg:w-1/2 px-2 mb-4" 
+            isAdd={false} isDel={false} data={data} updateData={updateData} 
+            beforeCount={beforeCount}
+            renderItem={(question) =>
             <>
               <p className="text-xs font-semibold mb-1.5 capitalize">
                 answer <span className="text-red-600">*</span>

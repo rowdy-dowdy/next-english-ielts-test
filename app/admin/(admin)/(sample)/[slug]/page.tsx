@@ -28,7 +28,7 @@ export default async ({
   const orderType = searchParams['order_type'] || table.orderType
  
   const { data, count } = await getDataSample({
-    page, per_page, columns: table.columns, tableName: table.tableName,
+    page, per_page, tableName: table.tableName,
     orderBy,
     orderType: (orderType != "asc" && orderType != "desc") ? undefined : orderType
   })

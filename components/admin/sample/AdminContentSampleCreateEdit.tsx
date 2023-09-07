@@ -30,11 +30,17 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
       loading,
       setLoading,
       callback: async () => {
-        const formData = Object.fromEntries(
-          new FormData(e.target as HTMLFormElement),
-        )
+        // const formData = Object.fromEntries(
+        //   new FormData(e.target as HTMLFormElement),
+        // )
+
+        let formData: {[key: string]: any} = listDataValue.reduce((pre, cur) => ({...pre, [cur.name]: cur.value}), {})
+
+        if (data) {
+          formData.id = data.id
+        }
   
-        await addEditDataSample({data: formData, edit: data != undefined, tableName: tableName, columns})
+        await addEditDataSample({data: formData, edit: data != undefined, tableName: tableName})
         if (!data) {
           router.back()
         }
@@ -61,52 +67,55 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
     })
   }
 
-  // slug 
-  const [listSlugValue, setListSlugValue] = useState<{
-    name: string,
-    value: string
-  }[]>(columns.filter(v => v.type == "slug").map(v => ({ name: v.name, value: data ? data[v.name] || '' : ''})))
+  // data form create
+  
+  const createDefaultValue = (column: SampleColumnsType) => {
+    if (column.type == "custom" && column.details.defaultValue) {
+      return column.details.defaultValue
+    }
 
-  // const 
+    const dataField = DATA_FIELDS[column.type]
+    if (dataField.defaultValue) {
+      return dataField.defaultValue
+    }
+
+    return ''
+  }
+  
+  // list data
+  const [listDataValue, setListDataValue] = useState<{
+    name: string,
+    value: any
+  }[]>(columns.map(v => ({ name: v.name, value: (data && data[v.name]) ? data[v.name]  : createDefaultValue(v)})))
 
   const onChangeValue = (value: any, name: string) => {
     //@ts-ignore
     let column = columns.filter(v => v.type == "slug").find(v => v.details.tableNameSlug == name)
-    if (column) {
-      onSlugChangeValue(value, column.name)
-    }
-  }
 
-  const onSlugChangeValue = (value: any, name: string) => {
-    setListSlugValue(state => state.map(v => {
-      let tempValue = v.value
-      if (v.name == name) {
-        tempValue = slugify(value, {
+    setListDataValue(state => state.map(v => {
+      if (column && v.name == column.name) {
+        return { ...v, value: slugify(value, {
           replacement: '_',
           lower: true,
           locale: 'vi',
           trim: false
-        })
+        }) }
       }
 
-      return ({
-        name: v.name,
-        value: tempValue
-      })
+      if (v.name == name) {
+        return {...v, value}
+      }
+
+      return v
     }))
   }
 
   return (
     <form onSubmit={save}>
-      { data
-        ? <input type={columns.find(v => v.name == "id")?.type == "int" ? 'number': 'string'} readOnly={true} className='sr-only' name="id" value={data.id || ''} />
-        : null
-      }
-
       <div className="flex items-center space-x-1 text-blue-500 hover:text-blue-600 bg-transparent cursor-pointer"
         onClick={() => router.back()}
       >
-        <span className="material-symbols-outlined">
+        <span className="icon">
           arrow_left_alt
         </span>
         <span>Trở lại</span>
@@ -119,7 +128,7 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
 
         { data && typeof data.publish !== 'undefined'
           ? <Button disabled={!data} variant="contained" color={(data ? data.publish == 'publish' : false) ? 'secondary' : 'black'} startIcon={(
-            <span className="material-symbols-outlined">
+            <span className="icon">
               {(data ? data.publish == 'publish' : false) ? 'check' : 'remove'}
             </span>
           )} onClick={handelChangePublish}>
@@ -143,19 +152,15 @@ const AdminContentSampleCreateEdit: React.FC<SampleStateType> = ({
                   : DATA_FIELDS[column.type].Component : null
 
                 return Component ? <div className="px-2 mb-4" key={column.name} style={{ width: column.col ? `${(12 / column.col) * 100}%` : '50%' }}>
-                  { column.type == "slug"
-                    ? <SlugFieldEdit key={column.name} label={column.name} name={column.name} required={column.required} 
-                      value={listSlugValue.find(v => v.name == column.name)?.value}
-                      setValue={(v) => onSlugChangeValue(v, column.name)} 
-                    />
-                    : <Component
-                      key={column.name}
-                      label={column.label} name={column.name}
-                      required={column.required} defaultValue={data ? data[column.name] : undefined}
-                      onChange={(v) => onChangeValue(v, column.name)}
-                      details={{...column.details, tableName: tableName}}
-                    />
-                  }
+                  <Component
+                    key={column.name}
+                    label={column.label} name={column.name}
+                    required={column.required} 
+                    // defaultValue={data ? data[column.name] : undefined}
+                    value={listDataValue.find(v => v.name == column.name)?.value}
+                    onChange={(v) => onChangeValue(v, column.name)}
+                    details={{...column.details, tableName: tableName}}
+                  />
                 </div> : null
               })}
             </div>

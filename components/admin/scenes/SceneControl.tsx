@@ -199,12 +199,12 @@ const AdminSceneControl = ({
           <span className="icon w-10 h-10 p-2 bg-sky-600 cursor-pointer"
             onClick={() => setOpenModalAdd(currentScene)}
           >
-            <span className="material-symbols-outlined">edit</span>
+            <span className="icon">edit</span>
           </span> 
           <span className="icon w-10 h-10 p-2 bg-red-600 cursor-pointer"
             onClick={() => setOpenDeleteModal(true)}
           >
-            <span className="material-symbols-outlined">delete</span>
+            <span className="icon">delete</span>
           </span>
         </div> 
         <div className="text-center p-2">{currentScene?.name}</div> 
@@ -212,7 +212,7 @@ const AdminSceneControl = ({
             <button type="submit" className="icon w-10 h-10 p-2 bg-blue-500 hover:bg-blue-400 cursor-pointer"
               onClick={handelUpdateInitial}
             >
-              <span className="material-symbols-outlined">save</span>
+              <span className="icon">save</span>
             </button>
         </div>
       </div>

@@ -4,12 +4,14 @@ import { v4 } from "uuid"
 import AdminFormFieldText from "../../form-field/AdminFormFieldText"
 import { QuestionState } from "../PassageFormField"
 import QuestionFormField from "../QuestionFormField"
+import { useEffect, useState } from "react"
 
 const TrueFalseFormField = ({
-  data, updateData
+  data, updateData, beforeCount
 }: {
   data: QuestionState[]
-  updateData: (data: QuestionState[]) => void
+  updateData: (data: QuestionState[]) => void,
+  beforeCount: number
 }) => {
 
   const handelUpdate = (value: 'true' | 'false' | 'notGive', id: string) => {
@@ -29,10 +31,25 @@ const TrueFalseFormField = ({
     updateData(newData)
   }
 
+  const handelUpdateQuestionName = (value: string, id: string) => {
+    const newData: QuestionState[] = data.map(v => {
+      if (v.id == id) {
+        return {...v, questionName: value}
+      }
+      return v
+    })
+
+    updateData(newData)
+  }
+
   return (
-    <QuestionFormField data={data} updateData={updateData} renderItem={(question) =>
+    <QuestionFormField data={data} updateData={updateData} defaultAnswerValue="true" beforeCount={beforeCount} renderItem={(question: QuestionState) =>
       <>
-        <AdminFormFieldText label="question name" placeholder="The counter-excavation method completely replaced the qanat method in the 6th century BCE." />
+        <AdminFormFieldText 
+          label="question name" 
+          placeholder="The counter-excavation method completely replaced the qanat method in the 6th century BCE." 
+          value={question.questionName || ''} onChange={(e) => handelUpdateQuestionName(e, question.id)}
+        />
 
         <div className="mt-4">
           <p className="text-xs font-semibold mb-1.5 capitalize">

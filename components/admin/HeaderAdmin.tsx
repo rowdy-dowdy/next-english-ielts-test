@@ -31,7 +31,7 @@ const HeaderAdmin = memo(({
           className="w-10 h-10 p-2 rounded-full bg-white hover:bg-gray-100"
           onClick={() => adminMenu?.toggle()}
         >
-          <span className="material-symbols-outlined">
+          <span className="icon">
             {adminMenu?.open ? 'menu_open' : 'menu'}
           </span>
         </button>
@@ -69,7 +69,7 @@ const Notification = ({ user }: { user: AdminUserType}) => {
       <button className="relative w-10 h-10 p-2 rounded-full hover:bg-gray-100"
         onClick={handleClick}
       >
-        <span className="material-symbols-outlined">
+        <span className="icon">
           notifications
         </span>
         <div className="absolute w-2 h-2 rounded-full bg-orange-600 top-2 right-3"></div>
@@ -99,7 +99,7 @@ const Notification = ({ user }: { user: AdminUserType}) => {
               <div className="w-10 h-10 rounded-full overflow-hidden bg-blue-500 flex items-center justify-center">
                 { user?.image
                   ? <img src={user?.image.url} alt="" className='w-full h-full object-cover' loading='lazy' />
-                  : <span className="material-symbols-outlined icon-fill !text-white !text-2xl">
+                  : <span className="icon icon-fill !text-white !text-2xl">
                     person
                   </span>
                 }
@@ -137,13 +137,13 @@ const AvatarUser = ({ user }: { user: NonNullable<AdminUserType>}) => {
         <div className={`w-10 h-10 rounded-full overflow-hidden ${!user.image ? 'bg-blue-500' : ''} grid place-items-center`}>
           { user.image
             ? <img src={user.image.url} alt="" className='w-full h-full object-cover' loading='lazy' />
-            : <span className="material-symbols-outlined icon-fill !text-white !text-2xl">
+            : <span className="icon icon-fill !text-white !text-2xl">
               person
             </span>
           }
         </div>
         <div className='font-semibold'>{user.name}</div>
-        <span className="material-symbols-outlined icon-fill">
+        <span className="icon icon-fill">
           arrow_drop_down
         </span>
       </div>
@@ -188,7 +188,7 @@ const AvatarUser = ({ user }: { user: NonNullable<AdminUserType>}) => {
         </MenuItem>
         <Divider />
         <MenuItem onClick={() => logoutUserAdmin()}>
-          <span className="material-symbols-outlined icon-fill text-red-600">
+          <span className="icon icon-fill text-red-600">
             logout
           </span>
           <span className="text-red-600">Đăng xuất</span>
