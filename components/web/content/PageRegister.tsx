@@ -7,14 +7,9 @@ import { signIn } from "next-auth/react"
 import { Button, TextField } from "@mui/material"
 import { promiseFunction } from "@/lib/admin/promise"
 import Link from "next/link"
+import { register } from "@/lib/web/getCurrentUser"
 
-const PageRegister = ({
-  register
-}: {
-  register: (data: {
-    name: string, email: string, password: string
-  }) => Promise<void>
-}) => {
+const PageRegister = () => {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -52,10 +47,10 @@ const PageRegister = ({
           <div className="px-6 py-8">
             <h3 className="font-semibold text-center text-xl">Đăng ký tài khoản</h3>
             <div className="mt-6 flex flex-col space-y-4">
-              <TextField name='email' label="Tài khoản" variant="outlined" required />
-              <TextField name='name' label="Tên tài khoản" variant="outlined" required />
+              <TextField InputLabelProps={{ shrink: true }} name='email' label="Tài khoản" variant="outlined" required />
+              <TextField InputLabelProps={{ shrink: true }} name='name' label="Tên tài khoản" variant="outlined" required />
             
-              <TextField name='password' type="password" label="Mật khẩu" variant="outlined" required />
+              <TextField InputLabelProps={{ shrink: true }} name='password' type="password" label="Mật khẩu" variant="outlined" required />
 
               { error ? <div className="p-2 rounded border-red-300 bg-red-100 text-red-500">{error}</div> : null }
               <Button type='submit' variant="contained">Đăng ký</Button>
@@ -76,7 +71,7 @@ const PageRegister = ({
 
           <div className="bg-gray-50 border-t p-4 font-semibold rounded-b text-center">
             Bạn đã có tài khoản?
-            <Link href="/auth/login" className="ml-2 text-red-500">Đăng ký</Link>
+            <Link href="/auth/login" className="ml-2 text-red-500">Đăng nhập</Link>
           </div>
 
           { loading
