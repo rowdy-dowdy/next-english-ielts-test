@@ -3,7 +3,8 @@
 import { QuizState } from "@/app/(web)/practice/[slug]/page";
 import { File, GroupQuestion, Question } from "@prisma/client";
 import Image from "next/image";
-import { groupQuestionState } from "../content/PagePractice";
+import { groupQuestionState } from "../content/PracticeContent";
+import { ChangeEvent, Dispatch, FormEvent, SetStateAction } from "react";
 
 const Diagram = ({
   groupQuestion, answer
@@ -12,8 +13,16 @@ const Diagram = ({
   answer: {
     questionId: string;
     answer: string;
-  }[]
+  }[],
+  setAnswer: Dispatch<SetStateAction<{
+    questionId: string;
+    answer: string;
+  }[]>>
 }) => {
+
+  const handelChange = (e: FormEvent) => {
+    console.log('Text inside div', e.currentTarget.textContent)
+  }
 
   return (
     <div className="flex -mx-2 rounded-xl px-4 py-3 bg-white">
@@ -41,7 +50,12 @@ const Diagram = ({
               <div className="question">
                 <span>{v.number}</span>
                 <span className="icon w-4 h-4 !text-lg">arrow_right_alt</span>
-                <div className="input" contentEditable dangerouslySetInnerHTML={{__html : answer.find(v2 => v2.questionId == v.id)?.answer || ''}}></div>
+                <div 
+                  className="input" 
+                  contentEditable 
+                  // dangerouslySetInnerHTML={{__html : answer.find(v2 => v2.questionId == v.id)?.answer || ''}}
+                  onInput={handelChange}
+                ></div>
               </div>
 
               {lastText ? <span>{lastText}</span> : null }

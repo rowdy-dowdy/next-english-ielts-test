@@ -3,7 +3,7 @@
 import { QuizState } from "@/app/(web)/practice/[slug]/page"
 import useSettings from "@/stores/settings"
 import Image from "next/image"
-import { FC, useEffect, useState } from "react"
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
 import styles from "./practice.module.css";
 import Diagram from "../english/Diagram"
 import TrueFalse from "../english/TrueFalse"
@@ -21,7 +21,11 @@ const groupQuestionsList: {
     answer: {
       questionId: string;
       answer: string;
-    }[]
+    }[],
+    setAnswer: Dispatch<SetStateAction<{
+      questionId: string;
+      answer: string;
+    }[]>>
   }>
 }[] = [
   { type: 'diagram', component: Diagram},
@@ -40,7 +44,7 @@ export type groupQuestionState =  GroupQuestion & {
   })[]
 }
 
-const PagePractice = ({
+const PracticeContent = ({
   quiz
 }: {
   quiz: QuizState
@@ -83,9 +87,13 @@ const PagePractice = ({
     answer: {
       questionId: string;
       answer: string;
-    }[]
+    }[],
+    setAnswer: Dispatch<SetStateAction<{
+      questionId: string;
+      answer: string;
+    }[]>>
   }> | null>(
-    groupQuestionsList.find(v => passages[0]?.groupQuestions[0].type)?.component || null
+    () => groupQuestionsList.find(v => passages[0]?.groupQuestions[0].type)?.component || null
   )
 
   const [answer, setAnswer] = useState(quiz.passages.reduce<{ questionId: string, answer: string }[]>((pre,cur) => {
@@ -149,7 +157,7 @@ const PagePractice = ({
 
     let tempGroupQuestion = passages[passageIndex].groupQuestions[passageIndexList[passageIndex].groupQuestionIndex]
     setGroupQuestionCurrent(tempGroupQuestion)
-    setGroupQuestionComponent(groupQuestionsList.find(v => tempGroupQuestion.type)?.component || null)
+    setGroupQuestionComponent(() => groupQuestionsList.find(v => tempGroupQuestion.type)?.component || null)
   }, [passageIndex, passageIndexList])
 
   const changeGroupQuestion = (type: 'next' | 'prev') => {
@@ -233,7 +241,6 @@ const PagePractice = ({
               <div className="w-7/12 py-4 px-4 overflow-y-auto">
                 { groupQuestionCurrent
                   ? <div>
-                    {groupQuestionCurrent.title}
                     <div className="rounded-xl bg-red-500 text-white px-4 py-3">
                       <span className="text-xl font-semibold">
                         Question {groupQuestionCurrent.questions[0].number} - 
@@ -244,7 +251,7 @@ const PagePractice = ({
                     
                     <div className="mt-4 group-question-wrapper">
                       { GroupQuestionComponent && groupQuestionCurrent
-                        ? <div>fasdf</div>
+                        ? <GroupQuestionComponent groupQuestion={groupQuestionCurrent} answer={answer} setAnswer={setAnswer} />
                         : null
                       }
                     </div>
@@ -426,4 +433,4 @@ const PagePractice = ({
   )
 }
 
-export default PagePractice
+export default PracticeContent

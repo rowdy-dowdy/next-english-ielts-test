@@ -1,4 +1,4 @@
-import PagePractice from "@/components/web/content/PagePractice"
+import PracticeContent from "@/components/web/content/PracticeContent"
 import db from "@/lib/admin/prismadb"
 import { File, GroupQuestion, Passage, Question, Quiz } from "@prisma/client"
 import { redirect } from "next/navigation"
@@ -47,7 +47,7 @@ const page = async ({
   }
 
   return (
-    <PagePractice quiz={quiz} />
+    <PracticeContent quiz={quiz} />
   )
 }
 
