@@ -12,7 +12,7 @@ import YesNoFormField from './questions/YesNoFormField'
 import MatchingFormField from './questions/MatchingFormField'
 import "./custom.css";
 import { v4 } from 'uuid'
-import { File, GroupQuestion, Passage, Question, Answer } from '@prisma/client'
+import { File, GroupQuestion as GroupQuestionDB, Passage, Question, Answer } from '@prisma/client'
 
 type OptionTypeState = 'diagram' | 'true-false' | 'short' | 'single' | 'summary' | 'yes-no' | 'matching'
 
@@ -31,7 +31,7 @@ export type GroupQuestionOptionsState = {
   }[]
 } | null
 
-type GroupQuestionState = Omit<GroupQuestion, 'imageId' | 'passageId' | 'options'> & {
+type GroupQuestionState = Omit<GroupQuestionDB, 'imageId' | 'passageId' | 'options'> & {
   image: File | null,
   questions: QuestionState[]
   options: GroupQuestionOptionsState

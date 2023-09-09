@@ -2,10 +2,12 @@
 
 import { createTheme, alpha, getContrastRatio } from "@mui/material/styles";
 import { ThemeProvider, CssBaseline } from '@mui/material'
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Roboto } from 'next/font/google'
 import { SnackbarProvider } from "notistack";
 import useSettings from "@/stores/settings";
+import { StyleRegistry, createStyleRegistry } from "styled-jsx";
+import { useServerInsertedHTML } from "next/navigation";
 
 const font = Roboto({
   weight: ['400', '500', '700'],
@@ -86,10 +88,29 @@ const MuiProvider: React.FC<{
         vertical: 'top',
         horizontal: 'right',
       }}>
+        {/* <StyledJsxRegistry>{children}</StyledJsxRegistry> */}
         {children}
       </SnackbarProvider>
     </ThemeProvider>
   )
+}
+
+export function StyledJsxRegistry({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  // Only create stylesheet once with lazy initial state
+  // x-ref: https://reactjs.org/docs/hooks-reference.html#lazy-initial-state
+  const [jsxStyleRegistry] = useState(() => createStyleRegistry())
+ 
+  useServerInsertedHTML(() => {
+    const styles = jsxStyleRegistry.styles()
+    jsxStyleRegistry.flush()
+    return <>{styles}</>
+  })
+ 
+  return <StyleRegistry registry={jsxStyleRegistry}>{children}</StyleRegistry>
 }
 
 export default MuiProvider

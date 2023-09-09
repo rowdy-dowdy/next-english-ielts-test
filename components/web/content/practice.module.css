@@ -5,6 +5,9 @@
 .practice :global(.group-question-wrapper .question) {
   @apply flex items-center space-x-2 text-sky-600 font-semibold;
 }
+.practice :global(.group-question-wrapper .question > *:last-child) {
+  @apply text-[#333];
+}
 
 .practice :global(.group-question-wrapper .question .input) {
   margin-left: .75rem;

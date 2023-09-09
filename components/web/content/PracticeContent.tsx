@@ -13,16 +13,18 @@ import Summary from "../english/Summary"
 import YesNo from "../english/YesNo"
 import Matching from "../english/Matching"
 import { File, GroupQuestion, Question } from "@prisma/client"
+import { GroupQuestionOptionsState } from "@/components/admin/english/PassageFormField"
+import Link from "next/link"
 
 const groupQuestionsList: {
   type: string,
   component: FC<{
-    groupQuestion: groupQuestionState,
-    answer: {
+    groupQuestion: GroupQuestionState,
+    answers: {
       questionId: string;
       answer: string;
     }[],
-    setAnswer: Dispatch<SetStateAction<{
+    setAnswers: Dispatch<SetStateAction<{
       questionId: string;
       answer: string;
     }[]>>
@@ -37,11 +39,12 @@ const groupQuestionsList: {
   { type: 'matching', component: Matching}
 ]
 
-export type groupQuestionState =  GroupQuestion & {
+export type GroupQuestionState =  Omit<GroupQuestion, "options"> & {
   image: File | null,
   questions: (Question & {
     number: number
-  })[]
+  })[],
+  options: GroupQuestionOptionsState
 }
 
 const PracticeContent = ({
@@ -83,12 +86,12 @@ const PracticeContent = ({
   const [passages, setPassages] = useState(mapPassages(quiz.passages))
   const [groupQuestionCurrent, setGroupQuestionCurrent] = useState(passages[0]?.groupQuestions[0])
   const [GroupQuestionComponent, setGroupQuestionComponent] = useState<FC<{
-    groupQuestion: groupQuestionState,
-    answer: {
+    groupQuestion: GroupQuestionState,
+    answers: {
       questionId: string;
       answer: string;
     }[],
-    setAnswer: Dispatch<SetStateAction<{
+    setAnswers: Dispatch<SetStateAction<{
       questionId: string;
       answer: string;
     }[]>>
@@ -96,7 +99,7 @@ const PracticeContent = ({
     () => groupQuestionsList.find(v => passages[0]?.groupQuestions[0].type)?.component || null
   )
 
-  const [answer, setAnswer] = useState(quiz.passages.reduce<{ questionId: string, answer: string }[]>((pre,cur) => {
+  const [answers, setAnswers] = useState(quiz.passages.reduce<{ questionId: string, answer: string }[]>((pre,cur) => {
     return [...pre, ...cur.groupQuestions.reduce<{ questionId: string, answer: string }[]>((pre2, cur2) => {
       return [...pre2, ...cur2.questions.map(v3 => ({ questionId: v3.id, answer: '' }))]
     }, [])]
@@ -107,7 +110,7 @@ const PracticeContent = ({
       return [...pre, ...cur.questions.map(v => v.id)]
     }, [])
 
-    return answer.filter(v => listQuestionId.includes(v.questionId) && v.answer).length
+    return answers.filter(v => listQuestionId.includes(v.questionId) && v.answer).length
   }
 
   const getPercent = (index: number) => {
@@ -157,7 +160,7 @@ const PracticeContent = ({
 
     let tempGroupQuestion = passages[passageIndex].groupQuestions[passageIndexList[passageIndex].groupQuestionIndex]
     setGroupQuestionCurrent(tempGroupQuestion)
-    setGroupQuestionComponent(() => groupQuestionsList.find(v => tempGroupQuestion.type)?.component || null)
+    setGroupQuestionComponent(() => groupQuestionsList.find(v => v.type == tempGroupQuestion.type)?.component || null)
   }, [passageIndex, passageIndexList])
 
   const changeGroupQuestion = (type: 'next' | 'prev') => {
@@ -210,9 +213,9 @@ const PracticeContent = ({
       <div className="w-full h-screen flex flex-col overflow-hidden">
         <div className="flex-none sticky w-full h-16 px-8 shadow-sm shadow-gray-200 bg-white">
           <div className="flex items-center space-x-6">
-            <span className="icon w-8 h-8 p-1 bg-gray-200 rounded-full cursor-pointer">
+            <Link href="/" className="icon w-8 h-8 p-1 bg-gray-200 rounded-full cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="m16.192 6.344-4.243 4.242-4.242-4.242-1.414 1.414L10.535 12l-4.242 4.242 1.414 1.414 4.242-4.242 4.243 4.242 1.414-1.414L13.364 12l4.242-4.242z"></path></svg>
-            </span>
+            </Link>
         
             <div className="flex-none flex items-center space-x-1 py-3">
               <Image src={findSettingByName('site logo')?.url || '/logo2.png'} alt="" width={40} height={40} className="w-10 h-10 rounded" />
@@ -224,7 +227,7 @@ const PracticeContent = ({
         
             <div className="!ml-auto">
               <div className="flex items-center space-x-1 text-red-600 rounded-lg border px-2 py-1">
-                <span className="font-semibold">60 : 00</span>
+                <span className="font-semibold">{quiz.workTime} : 00</span>
                 <span className="icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="m20.145 8.27 1.563-1.563-1.414-1.414L18.586 7c-1.05-.63-2.274-1-3.586-1-3.859 0-7 3.14-7 7s3.141 7 7 7 7-3.14 7-7a6.966 6.966 0 0 0-1.855-4.73zM15 18c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path><path d="M14 10h2v4h-2zm-1-7h4v2h-4zM3 8h4v2H3zm0 8h4v2H3zm-1-4h3.99v2H2z"></path></svg>
                 </span>
@@ -251,7 +254,7 @@ const PracticeContent = ({
                     
                     <div className="mt-4 group-question-wrapper">
                       { GroupQuestionComponent && groupQuestionCurrent
-                        ? <GroupQuestionComponent groupQuestion={groupQuestionCurrent} answer={answer} setAnswer={setAnswer} />
+                        ? <GroupQuestionComponent groupQuestion={groupQuestionCurrent} answers={answers} setAnswers={setAnswers} />
                         : null
                       }
                     </div>
@@ -326,7 +329,7 @@ const PracticeContent = ({
                       </svg>
                     </span>
                     <span className="absolute w-full h-full top-0 left-0 grid place-items-center text-xs">
-                      {getAnswerCount(i)} / {v.questionCount}
+                      {getAnswerCount(i)}/{v.questionCount}
                     </span>
                   </div>
                   <div className="mb-1">
@@ -387,8 +390,8 @@ const PracticeContent = ({
                       { v.questions.map((question) =>
                         <button key={question.id}
                           className={`w-6 h-6 rounded-full border bg-gray-200 grid place-items-center 
-                          ${false ? 'border-blue-600 bg-blue-200' : ''}`}
-                          onClick={() => setPassageIndexList(state => state.map(v => ({...v, groupQuestionIndex: i}))) }
+                          ${answers.find(v2 => v2.questionId == question.id)?.answer ? 'border-blue-600 !bg-blue-100' : ''}`}
+                          onClick={() => setPassageIndexList(state => state.map((v2, i2) => ({...v2, groupQuestionIndex: i2 == passageIndex ? i : v2.groupQuestionIndex}))) }
                         >
                           {question.number}
                         </button>
