@@ -135,7 +135,7 @@ const AdminFileModalAddFolder: React.FC<AddModalType> = ({
                 : null
               }
 
-              <AdminFormFieldText label='Tên' name='name' value={name} onChange={(e) => setName(e.target.value)} />
+              <AdminFormFieldText label='Tên' name='name' value={name} onChange={(v) => setName(v)} />
             </div>
 
             <div className="p-6 bg-gray-100 flex items-center">

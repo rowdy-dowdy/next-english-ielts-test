@@ -120,7 +120,7 @@ const DetailsFile = ({
         {title: 'Ảnh', value: 'image'},
         {title: 'Audio', value: 'audio'},
         {title: 'Video', value: 'video'}
-      ], multiple: true}} value={fileTypes} onChange={(v) => setFileTypes(v.target.value as any)} />
+      ], multiple: true}} value={fileTypes} onChange={(v) => setFileTypes(v as any)} />
     </div>
   )
 }
