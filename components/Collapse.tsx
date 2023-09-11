@@ -1,5 +1,5 @@
 "use client"
-import { useClickOutside } from '@/lib/clickOutside'
+import { useClickOutside } from '@/lib/utils/clickOutside'
 import React, { useEffect, useRef, useState } from 'react'
 
 const Collapse = ({className = "", children, show = false, setShow}: any) => {
