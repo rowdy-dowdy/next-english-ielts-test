@@ -1,5 +1,3 @@
-import { SceneDataState } from "@/app/admin/(admin)/scenes/page"
-import { Viewer } from "@photo-sphere-viewer/core"
 import { create } from "zustand"
 
 type State = {
