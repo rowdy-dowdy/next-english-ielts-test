@@ -6,7 +6,6 @@ import { promiseFunction } from '@/lib/admin/promise'
 import { loginUserAdmin } from '@/lib/admin/helperServer'
 
 const LoginContentAdmin = () => {
-  const searchParams = useSearchParams()
   const router = useRouter();
 
   const [loading, setLoading] = useState(false)
@@ -28,15 +27,7 @@ const LoginContentAdmin = () => {
           email, password, remember
         })
 
-        const urlRedirect = searchParams?.get('url')
-
-        if (urlRedirect) {
-          console.log({urlRedirect})
-          router.replace(urlRedirect)
-        }
-        else {
-          router.refresh()
-        }
+        router.refresh()
       }
     })
   }

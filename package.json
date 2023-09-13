@@ -3,9 +3,11 @@
   "scripts": {
     "dev": "next dev",
     "dev2": "next dev --turbo",
+    "dev3": "node server.js",
     "build": "next build",
     "start": "next start",
     "start2": "next start -p 3001",
+    "start3": "NODE_ENV=production node server.js",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
     "seed": "npx ts-node-esm ./prisma/seed.ts"
@@ -47,6 +49,7 @@
     "moment": "2.29.4",
     "next": "latest",
     "next-auth": "4.22.1",
+    "node-cron": "3.0.2",
     "notistack": "3.0.1",
     "p-queue": "7.3.4",
     "photoswipe": "5.3.8",
