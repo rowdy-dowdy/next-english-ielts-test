@@ -4,4 +4,4 @@
 - add to TABLE_SAMPLES
 
 # pm2 start
-pm2 start npm --name "english" -- start2
+pm2 start "npm run start2" --name "english"
